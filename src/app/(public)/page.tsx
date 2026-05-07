@@ -3,6 +3,8 @@ import prisma from "@/lib/prisma";
 import ChatAssistant from "@/components/ChatAssistant";
 import HeroBanner from "@/components/HeroBanner";
 
+export const dynamic = 'force-dynamic';
+
 export default async function Home() {
   // Lấy dữ liệu từ database
   const [banners, featuredProducts, categories] = await Promise.all([

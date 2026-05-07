@@ -4,6 +4,8 @@ import Link from "next/link";
 import ShopSort from "@/components/ShopSort";
 import { Suspense } from "react";
 
+export const dynamic = 'force-dynamic';
+
 interface ShopPageProps {
   searchParams: Promise<{
     category?: string;
