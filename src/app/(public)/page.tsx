@@ -75,23 +75,49 @@ export default async function Home() {
       </section>
 
       {/* Section Danh mục nổi bật */}
-      <section className="py-20 bg-soft-gray/30">
+      <section className="py-24 bg-white">
         <div className="container-custom">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-dark font-serif mb-4">Bộ Sưu Tập Theo Chủ Đề</h2>
-            <div className="w-20 h-1 bg-primary mx-auto"></div>
+          <div className="flex flex-col md:flex-row items-center justify-between mb-16 gap-6">
+            <div className="text-left">
+              <h2 className="text-4xl font-bold text-dark font-serif mb-2">Bộ Sưu Tập Theo Chủ Đề</h2>
+              <p className="text-gray-400">Khám phá những phong cách nghệ thuật phù hợp với không gian của bạn</p>
+            </div>
+            <div className="hidden md:block w-32 h-px bg-gray-100"></div>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
-            {categories.map((cat: any) => (
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            {categories.map((cat: any, index: number) => (
               <a 
                 key={cat.id} 
                 href={`/shop?category=${cat.id}`}
-                className="group bg-white p-6 rounded-[2rem] border border-gray-100 text-center hover:shadow-xl transition-all hover:-translate-y-2"
+                className={`group relative overflow-hidden rounded-[2.5rem] aspect-[3/4] shadow-lg transition-all duration-700 hover:shadow-2xl hover:-translate-y-2 ${index % 2 !== 0 ? 'lg:translate-y-8' : ''}`}
               >
-                <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:bg-primary group-hover:text-white transition-colors">
-                  <span className="text-2xl font-bold">{cat.name.charAt(0)}</span>
+                {/* Background Image */}
+                <img 
+                  src={cat.image || `https://images.unsplash.com/photo-1513519245088-0e12902e5a38?q=80&w=800&auto=format&fit=crop&sig=${index}`} 
+                  alt={cat.name}
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+                />
+                
+                {/* Gradient Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-dark/90 via-dark/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity"></div>
+                
+                {/* Content */}
+                <div className="absolute inset-0 p-8 flex flex-col justify-end">
+                  <p className="text-primary font-bold text-[10px] uppercase tracking-[0.3em] mb-2 transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
+                    DanyDecor Collection
+                  </p>
+                  <h3 className="text-2xl font-bold text-white font-serif mb-4 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
+                    {cat.name}
+                  </h3>
+                  
+                  <div className="flex items-center gap-2 text-white/70 text-xs font-medium transform translate-y-8 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-700 delay-100">
+                    Xem bộ sưu tập <ArrowRight className="w-4 h-4" />
+                  </div>
                 </div>
-                <h3 className="font-bold text-dark text-sm group-hover:text-primary transition-colors">{cat.name}</h3>
+
+                {/* Decorative border on hover */}
+                <div className="absolute inset-4 border border-white/20 rounded-[2rem] pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
               </a>
             ))}
           </div>
