@@ -2,12 +2,13 @@ import { ArrowRight, MessageSquare, Star, Award } from "lucide-react";
 import prisma from "@/lib/prisma";
 import ChatAssistant from "@/components/ChatAssistant";
 import HeroBanner from "@/components/HeroBanner";
+import Link from "next/link";
 
 export const revalidate = 60; // Revalidate data every 60 seconds
 
 export default async function Home() {
   // Lấy dữ liệu từ database
-  const [banners, featuredProducts, categories] = await Promise.all([
+  const [banners, featuredProducts, allRootCategories] = await Promise.all([
     prisma.banner.findMany({
       where: { isActive: true },
       orderBy: { createdAt: "desc" },
@@ -19,9 +20,19 @@ export default async function Home() {
       include: { category: true }
     }).catch(() => []),
     prisma.category.findMany({
-      orderBy: { name: "asc" }
+      where: { parentId: null }, // Chỉ lấy các danh mục gốc
+      orderBy: { name: "asc" },
+      take: 4 // Tối đa 4 danh mục
     }).catch(() => [])
   ]);
+
+  // Tính toán số cột động cho danh mục
+  const categoryCount = allRootCategories.length;
+  const gridColsClass = 
+    categoryCount === 1 ? "lg:grid-cols-1 max-w-md mx-auto" :
+    categoryCount === 2 ? "lg:grid-cols-2 max-w-4xl mx-auto" :
+    categoryCount === 3 ? "lg:grid-cols-3 max-w-6xl mx-auto" :
+    "lg:grid-cols-4";
 
   return (
     <>
@@ -43,18 +54,18 @@ export default async function Home() {
               trọng trong mọi không gian.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
-              <a
+              <Link
                 href="/shop"
                 className="btn-primary px-10 py-4 rounded-full font-bold shadow-xl flex items-center justify-center gap-2"
               >
                 Khám phá bộ sưu tập <ArrowRight className="w-5 h-5" />
-              </a>
-              <a
+              </Link>
+              <Link
                 href="/shop"
                 className="border-2 border-dark text-dark px-10 py-4 rounded-full font-bold hover:bg-dark hover:text-white transition-all flex items-center justify-center"
               >
                 Khung tranh & Decor
-              </a>
+              </Link>
             </div>
           </div>
           <div className="relative hidden lg:block">
@@ -79,20 +90,20 @@ export default async function Home() {
       {/* Section Danh mục nổi bật */}
       <section className="py-24 bg-white">
         <div className="container-custom">
-          <div className="flex flex-col md:flex-row items-center justify-between mb-16 gap-6">
-            <div className="text-left">
+          <div className="flex flex-col md:flex-row items-center justify-between mb-16 gap-6 text-center md:text-left">
+            <div className="max-w-2xl">
               <h2 className="text-4xl font-bold text-dark font-serif mb-2">Bộ Sưu Tập Theo Chủ Đề</h2>
               <p className="text-gray-400">Khám phá những phong cách nghệ thuật phù hợp với không gian của bạn</p>
             </div>
-            <div className="hidden md:block w-32 h-px bg-gray-100"></div>
+            <div className="hidden md:block flex-1 h-px bg-gray-100 mx-8"></div>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {categories.map((cat: any, index: number) => (
-              <a 
+          <div className={`grid grid-cols-1 sm:grid-cols-2 ${gridColsClass} gap-8`}>
+            {allRootCategories.map((cat: any, index: number) => (
+              <Link 
                 key={cat.id} 
                 href={`/shop?category=${cat.id}`}
-                className={`group relative overflow-hidden rounded-[2.5rem] aspect-[3/4] shadow-lg transition-all duration-700 hover:shadow-2xl hover:-translate-y-2 ${index % 2 !== 0 ? 'lg:translate-y-8' : ''}`}
+                className={`group relative overflow-hidden rounded-[2.5rem] aspect-[3/4] shadow-lg transition-all duration-700 hover:shadow-2xl hover:-translate-y-2 ${categoryCount > 2 && index % 2 !== 0 ? 'lg:translate-y-8' : ''}`}
               >
                 {/* Background Image */}
                 <img 
@@ -120,9 +131,11 @@ export default async function Home() {
 
                 {/* Decorative border on hover */}
                 <div className="absolute inset-4 border border-white/20 rounded-[2rem] pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
-              </a>
+              </Link>
             ))}
           </div>
+          
+          {categoryCount > 2 && <div className="h-12 hidden lg:block"></div>}
         </div>
       </section>
 
@@ -150,8 +163,8 @@ export default async function Home() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
             {featuredProducts.length > 0 ? (
               featuredProducts.map((product: any) => (
-                <div key={product.id} className="product-card bg-white rounded-3xl overflow-hidden flex flex-col group">
-                  <div className="relative aspect-[4/3] overflow-hidden">
+                <div key={product.id} className="product-card bg-white rounded-3xl overflow-hidden flex flex-col group border border-gray-50 hover:shadow-2xl transition-all duration-500">
+                  <Link href={`/product/${product.slug}`} className="relative aspect-[4/3] overflow-hidden block">
                     <img
                       src={product.images[0] || "https://images.unsplash.com/photo-1544457070-4cd773b4d71e?q=80&w=800&auto=format&fit=crop"}
                       alt={product.name}
@@ -160,11 +173,13 @@ export default async function Home() {
                     <div className="absolute top-4 left-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">
                       {product.category?.name || "Bộ sưu tập"}
                     </div>
-                  </div>
+                  </Link>
                   <div className="p-8 flex flex-col flex-grow">
-                    <h3 className="text-xl font-bold mb-3 text-dark group-hover:text-primary transition-colors line-clamp-1">
-                      {product.name}
-                    </h3>
+                    <Link href={`/product/${product.slug}`}>
+                        <h3 className="text-xl font-bold mb-3 text-dark group-hover:text-primary transition-colors line-clamp-1">
+                        {product.name}
+                        </h3>
+                    </Link>
                     <div className="text-gray-500 text-sm mb-6 leading-relaxed line-clamp-2" dangerouslySetInnerHTML={{ __html: product.description || "" }} />
                     <div className="mt-auto flex items-center justify-between pt-6 border-t border-gray-50">
                       <div className="flex flex-col">
@@ -178,7 +193,7 @@ export default async function Home() {
                         )}
                       </div>
                       <a
-                        href={`https://zalo.me/YOUR_ZALO_NUMBER`}
+                        href={`https://zalo.me/${process.env.NEXT_PUBLIC_ZALO_PHONE || '0987654321'}`}
                         target="_blank"
                         className="flex items-center gap-2 bg-soft-gray text-dark px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-primary hover:text-white transition-all"
                       >

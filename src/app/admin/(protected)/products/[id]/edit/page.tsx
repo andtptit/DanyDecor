@@ -4,13 +4,18 @@ import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import ImageUploader from '@/components/admin/ImageUploader'
 import RichTextEditor from '@/components/admin/RichTextEditor'
+import CategorySubCategorySelect from '@/components/admin/CategorySubCategorySelect'
 import { revalidatePath } from 'next/cache'
 
 export default async function EditProductPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const [product, categories] = await Promise.all([
     prisma.product.findUnique({ where: { id } }).catch(() => null),
-    prisma.category.findMany().catch(() => []),
+    prisma.category.findMany({
+      orderBy: {
+        name: 'asc'
+      }
+    }).catch(() => []),
   ])
 
   if (!product) notFound()
@@ -30,7 +35,16 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
     if (name && price && categoryId) {
       await prisma.product.update({
         where: { id },
-        data: { name, slug, price, originalPrice, description, categoryId, isFeatured, images }
+        data: { 
+          name, 
+          slug, 
+          price, 
+          originalPrice, 
+          description, 
+          categoryId, 
+          isFeatured, 
+          images 
+        }
       })
       revalidatePath('/admin/products')
       redirect('/admin/products')
@@ -49,27 +63,26 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
 
       <div className="bg-white rounded-[2rem] border border-gray-100 shadow-sm p-8 max-w-3xl">
         <form action={updateProduct} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 gap-6">
             <div>
               <label className="block text-sm font-bold text-dark mb-2">Tên sản phẩm *</label>
               <input name="name" required type="text" defaultValue={product.name} className="w-full bg-soft-gray border-none rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20" />
             </div>
-            <div>
-              <label className="block text-sm font-bold text-dark mb-2">Danh mục *</label>
-              <select name="categoryId" required defaultValue={product.categoryId} className="w-full bg-soft-gray border-none rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20">
-                <option value="">Chọn danh mục</option>
-                {categories.map((cat: any) => (
-                  <option key={cat.id} value={cat.id}>{cat.name}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-bold text-dark mb-2">Giá bán (VNĐ) *</label>
-              <input name="price" required type="number" min="0" defaultValue={product.price} className="w-full bg-soft-gray border-none rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20" />
-            </div>
-            <div>
-              <label className="block text-sm font-bold text-dark mb-2">Giá gốc (VNĐ)</label>
-              <input name="originalPrice" type="number" min="0" defaultValue={product.originalPrice ?? ''} className="w-full bg-soft-gray border-none rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="Chỉ điền nếu có giảm giá" />
+
+            <CategorySubCategorySelect 
+              categories={categories} 
+              initialCategoryId={product.categoryId}
+            />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-bold text-dark mb-2">Giá bán (VNĐ) *</label>
+                <input name="price" required type="number" min="0" defaultValue={product.price} className="w-full bg-soft-gray border-none rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20" />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-dark mb-2">Giá gốc (VNĐ)</label>
+                <input name="originalPrice" type="number" min="0" defaultValue={product.originalPrice ?? ''} className="w-full bg-soft-gray border-none rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="Chỉ điền nếu có giảm giá" />
+              </div>
             </div>
           </div>
 

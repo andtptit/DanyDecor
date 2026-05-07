@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Be_Vietnam_Pro, Playfair_Display } from "next/font/google";
 import "./globals.css";
 
@@ -18,6 +18,13 @@ const playfairDisplay = Playfair_Display({
 export const metadata: Metadata = {
   title: "DanyDecor | Tranh Treo Tường Nghệ Thuật",
   description: "Tranh treo tường nghệ thuật cao cấp, tranh canvas, tráng gương.",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default function RootLayout({

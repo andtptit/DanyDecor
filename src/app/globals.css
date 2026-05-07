@@ -14,15 +14,28 @@
   --foreground: #0e0e12;
 }
 
+html, body {
+  overflow-x: hidden;
+  width: 100%;
+  position: relative;
+  scroll-behavior: smooth;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), sans-serif;
   -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%; /* Ngăn chặn tự động zoom text trên iOS */
 }
 
-html {
-  scroll-behavior: smooth;
+/* Ẩn scrollbar cho các thành phần cần thiết */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 /* Custom Utilities */
@@ -32,8 +45,15 @@ html {
     max-width: 1400px;
     margin-left: auto;
     margin-right: auto;
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+
+  @media (min-width: 1024px) {
+    .container-custom {
+      padding-left: 2rem;
+      padding-right: 2rem;
+    }
   }
 
   .product-card {
@@ -42,9 +62,11 @@ html {
   }
 
   .product-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 15px 30px rgba(37, 99, 235, 0.1);
-    border-color: rgba(37, 99, 235, 0.2);
+    @media (min-width: 1024px) {
+      transform: translateY(-8px);
+      box-shadow: 0 15px 30px rgba(37, 99, 235, 0.1);
+      border-color: rgba(37, 99, 235, 0.2);
+    }
   }
 
   .btn-primary {

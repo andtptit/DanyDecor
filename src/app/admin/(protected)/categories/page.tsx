@@ -1,14 +1,23 @@
 import prisma from '@/lib/prisma'
-import { Edit, Trash } from 'lucide-react'
+import { Edit, Trash, ChevronRight, CornerDownRight } from 'lucide-react'
 import { revalidatePath } from 'next/cache'
 import Link from 'next/link'
 
-export const dynamic = 'force-dynamic';
+export const dynamic = 'force-dynamic'
 
 export default async function CategoriesAdminPage() {
-  const categories = await prisma.category.findMany({
-    orderBy: { createdAt: 'desc' }
-  }).catch(() => []) // Handle case where DB is not ready
+  // Fetch all categories with their parent/child info
+  const allCategories = await prisma.category.findMany({
+    include: {
+      parent: true,
+      children: true,
+      _count: { select: { products: true } }
+    },
+    orderBy: { name: 'asc' }
+  }).catch(() => [])
+
+  // Filter root categories for the list and dropdown
+  const rootCategories = allCategories.filter(cat => cat.parentId === null || cat.parentId === '')
 
   async function deleteCategory(formData: FormData) {
     'use server'
@@ -23,12 +32,19 @@ export default async function CategoriesAdminPage() {
     'use server'
     const name = formData.get('name') as string
     const description = formData.get('description') as string
+    const parentId = formData.get('parentId') as string
+    
     // Auto-generate slug from name
     const slug = name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)+/g, "")
     
     if (name) {
       await prisma.category.create({
-        data: { name, slug, description }
+        data: { 
+          name, 
+          slug, 
+          description, 
+          parentId: parentId || null 
+        }
       })
       revalidatePath('/admin/categories')
     }
@@ -38,8 +54,8 @@ export default async function CategoriesAdminPage() {
     <div>
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-dark font-serif mb-2">Danh Mục</h1>
-          <p className="text-gray-500 text-sm">Quản lý các danh mục tranh và trang trí.</p>
+          <h1 className="text-3xl font-bold text-dark font-serif mb-2">Quản Lý Danh Mục</h1>
+          <p className="text-gray-500 text-sm">Thêm mới danh mục gốc hoặc danh mục con để phân loại sản phẩm.</p>
         </div>
       </div>
 
@@ -49,8 +65,20 @@ export default async function CategoriesAdminPage() {
           <h2 className="text-lg font-bold text-dark mb-4">Thêm danh mục mới</h2>
           <form action={createCategory} className="space-y-4">
             <div>
-              <label className="block text-sm font-bold text-dark mb-2">Tên danh mục</label>
+              <label className="block text-sm font-bold text-dark mb-2">Tên danh mục *</label>
               <input name="name" required type="text" className="w-full bg-soft-gray border-none rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="VD: Tranh Tráng Gương" />
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-dark mb-2">Danh mục cha (Không chọn = Gốc)</label>
+              <select 
+                name="parentId" 
+                className="w-full bg-soft-gray border-none rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+              >
+                <option value="">-- Là danh mục gốc --</option>
+                {rootCategories.map(cat => (
+                  <option key={cat.id} value={cat.id}>{cat.name}</option>
+                ))}
+              </select>
             </div>
             <div>
               <label className="block text-sm font-bold text-dark mb-2">Mô tả</label>
@@ -67,38 +95,76 @@ export default async function CategoriesAdminPage() {
           <table className="w-full text-left text-sm">
             <thead className="bg-soft-gray/50 text-gray-500 uppercase tracking-widest text-[10px] font-bold border-b border-gray-100">
               <tr>
-                <th className="px-6 py-4">Tên & Slug</th>
-                <th className="px-6 py-4">Mô tả</th>
+                <th className="px-6 py-4">Tên & Phân cấp</th>
+                <th className="px-6 py-4">Số sản phẩm</th>
                 <th className="px-6 py-4 text-right">Thao Tác</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {categories.map((cat: any) => (
-                <tr key={cat.id} className="hover:bg-soft-gray/50 transition-colors group">
-                  <td className="px-6 py-4">
-                    <p className="font-bold text-dark">{cat.name}</p>
-                    <p className="text-xs text-gray-400">/{cat.slug}</p>
-                  </td>
-                  <td className="px-6 py-4 text-gray-500 max-w-xs truncate">{cat.description || '-'}</td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="flex justify-end gap-2">
-                      <Link href={`/admin/categories/${cat.id}/edit`} className="p-2 text-gray-400 hover:text-primary transition-colors bg-white border border-gray-100 rounded-lg hover:bg-soft-gray">
-                        <Edit className="w-4 h-4" />
-                      </Link>
-                      <form action={deleteCategory}>
-                        <input type="hidden" name="id" value={cat.id} />
-                        <button type="submit" className="p-2 text-gray-400 hover:text-red-500 transition-colors bg-white border border-gray-100 rounded-lg hover:bg-soft-gray">
-                          <Trash className="w-4 h-4" />
-                        </button>
-                      </form>
-                    </div>
-                  </td>
-                </tr>
+              {rootCategories.map((root: any) => (
+                <React.Fragment key={root.id}>
+                  {/* Root Row */}
+                  <tr className="hover:bg-soft-gray/50 transition-colors group">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-primary"></span>
+                        <div>
+                          <p className="font-bold text-dark">{root.name}</p>
+                          <p className="text-[10px] text-gray-400">/{root.slug}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-gray-500 font-medium">{root._count?.products ?? 0} SP</td>
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex justify-end gap-2">
+                        <Link href={`/admin/categories/${root.id}/edit`} className="p-2 text-gray-400 hover:text-primary transition-colors bg-white border border-gray-100 rounded-lg hover:bg-soft-gray">
+                          <Edit className="w-4 h-4" />
+                        </Link>
+                        <form action={deleteCategory}>
+                          <input type="hidden" name="id" value={root.id} />
+                          <button type="submit" className="p-2 text-gray-400 hover:text-red-500 transition-colors bg-white border border-gray-100 rounded-lg hover:bg-soft-gray">
+                            <Trash className="w-4 h-4" />
+                          </button>
+                        </form>
+                      </div>
+                    </td>
+                  </tr>
+                  {/* Children Rows */}
+                  {root.children.map((child: any) => (
+                    <tr key={child.id} className="bg-gray-50/30 hover:bg-soft-gray transition-colors group">
+                      <td className="px-6 py-3 pl-12">
+                        <div className="flex items-center gap-2 text-gray-500">
+                          <CornerDownRight className="w-4 h-4 text-gray-300" />
+                          <div>
+                            <p className="font-medium text-sm text-dark">{child.name}</p>
+                            <p className="text-[10px] text-gray-400">/{child.slug}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-3 text-xs text-gray-400 italic">
+                        {allCategories.find(c => c.id === child.id)?._count?.products ?? 0} SP
+                      </td>
+                      <td className="px-6 py-3 text-right">
+                        <div className="flex justify-end gap-2">
+                          <Link href={`/admin/categories/${child.id}/edit`} className="p-1.5 text-gray-400 hover:text-primary transition-colors bg-white border border-gray-100 rounded-lg hover:bg-soft-gray">
+                            <Edit className="w-3.5 h-3.5" />
+                          </Link>
+                          <form action={deleteCategory}>
+                            <input type="hidden" name="id" value={child.id} />
+                            <button type="submit" className="p-1.5 text-gray-400 hover:text-red-500 transition-colors bg-white border border-gray-100 rounded-lg hover:bg-soft-gray">
+                              <Trash className="w-3.5 h-3.5" />
+                            </button>
+                          </form>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </React.Fragment>
               ))}
-              {categories.length === 0 && (
+              {allCategories.length === 0 && (
                 <tr>
                   <td colSpan={3} className="px-6 py-8 text-center text-gray-400">
-                    Chưa có danh mục nào. Hãy thêm mới bên trái.
+                    Chưa có danh mục nào.
                   </td>
                 </tr>
               )}
@@ -109,3 +175,5 @@ export default async function CategoriesAdminPage() {
     </div>
   )
 }
+
+import React from 'react'

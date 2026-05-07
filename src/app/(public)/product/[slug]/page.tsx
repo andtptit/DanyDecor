@@ -17,68 +17,92 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
 
   const product = await prisma.product.findUnique({
     where: { slug },
-    include: { category: true }
+    include: { 
+      category: {
+        include: { parent: true }
+      }
+    }
   });
 
   if (!product) notFound();
 
-  // Lấy các sản phẩm liên quan (cùng danh mục)
+  // Lấy các sản phẩm liên quan (cùng danh mục hoặc cùng cha)
   const relatedProducts = await prisma.product.findMany({
     where: {
-      categoryId: product.categoryId,
+      OR: [
+        { categoryId: product.categoryId },
+        { category: { parentId: product.category.parentId || product.categoryId } }
+      ],
       id: { not: product.id }
     },
     take: 4,
     orderBy: { createdAt: 'desc' }
   }).catch(() => []);
 
-  const zaloLink = `https://zalo.me/YOUR_ZALO_NUMBER`; // Bạn hãy thay số điện thoại vào đây
+  const zaloLink = `https://zalo.me/${process.env.NEXT_PUBLIC_ZALO_PHONE || '0987654321'}`;
 
   return (
     <div className="bg-white min-h-screen">
       {/* Breadcrumbs */}
-      <div className="bg-soft-gray/30 py-4">
+      <div className="bg-soft-gray/30 py-3 lg:py-4">
         <div className="container-custom">
-          <nav className="flex items-center gap-2 text-xs font-medium text-gray-400">
+          <nav className="flex items-center gap-2 text-[10px] lg:text-xs font-medium text-gray-400 overflow-x-auto whitespace-nowrap pb-1 no-scrollbar">
             <Link href="/" className="hover:text-primary transition-colors flex items-center gap-1">
               <HomeIcon className="w-3 h-3" /> Trang chủ
             </Link>
-            <ChevronRight className="w-3 h-3" />
+            <ChevronRight className="w-3 h-3 flex-shrink-0" />
             <Link href="/shop" className="hover:text-primary transition-colors">Cửa hàng</Link>
-            <ChevronRight className="w-3 h-3" />
-            <span className="text-dark line-clamp-1">{product.name}</span>
+            <ChevronRight className="w-3 h-3 flex-shrink-0" />
+            {product.category.parent && (
+                <>
+                    <Link href={`/shop?category=${product.category.parentId}`} className="hover:text-primary transition-colors">
+                        {product.category.parent.name}
+                    </Link>
+                    <ChevronRight className="w-3 h-3 flex-shrink-0" />
+                </>
+            )}
+            <Link href={`/shop?category=${product.categoryId}`} className="hover:text-primary transition-colors">
+              {product.category.name}
+            </Link>
+            <ChevronRight className="w-3 h-3 flex-shrink-0" />
+            <span className="text-dark truncate">{product.name}</span>
           </nav>
         </div>
       </div>
 
-      <main className="container-custom py-12 lg:py-20">
-        <div className="grid lg:grid-cols-2 gap-16 items-start">
+      <main className="container-custom py-8 lg:py-20">
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-start">
           {/* Cột trái: Hình ảnh (Client Component) */}
           <ProductImages images={product.images} />
 
           {/* Cột phải: Thông tin */}
-          <div className="space-y-10">
+          <div className="space-y-8 lg:space-y-10">
             <div>
-              <div className="flex items-center gap-2 mb-4">
-                <span className="bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full">
-                  {product.category?.name || "Bộ sưu tập"}
+              <div className="flex flex-wrap items-center gap-2 mb-4">
+                {product.category.parent && (
+                    <span className="bg-primary/5 text-primary/60 text-[9px] lg:text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-full">
+                        {product.category.parent.name}
+                    </span>
+                )}
+                <span className="bg-primary/10 text-primary text-[9px] lg:text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-full">
+                  {product.category.name}
                 </span>
                 {product.isFeatured && (
-                  <span className="bg-amber-100 text-amber-600 text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full">
+                  <span className="bg-amber-100 text-amber-600 text-[9px] lg:text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-full">
                     Nổi bật
                   </span>
                 )}
               </div>
-              <h1 className="text-4xl lg:text-5xl font-bold text-dark font-serif leading-tight mb-6">
+              <h1 className="text-3xl lg:text-5xl font-bold text-dark font-serif leading-tight mb-4 lg:mb-6">
                 {product.name}
               </h1>
               
               <div className="flex items-baseline gap-4">
-                <span className="text-3xl font-bold text-primary">
+                <span className="text-2xl lg:text-3xl font-bold text-primary">
                   {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.price)}
                 </span>
                 {product.originalPrice && (
-                  <span className="text-lg text-gray-300 line-through">
+                  <span className="text-base lg:text-lg text-gray-300 line-through">
                     {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.originalPrice)}
                   </span>
                 )}
@@ -86,39 +110,39 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
             </div>
 
             {/* Đặc điểm nổi bật */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="flex items-center gap-3 p-4 rounded-2xl border border-gray-100 bg-soft-gray/20">
-                <ShieldCheck className="w-5 h-5 text-green-500" />
-                <span className="text-xs font-bold text-dark">Bảo hành 2 năm</span>
+            <div className="grid grid-cols-2 gap-3 lg:gap-4">
+              <div className="flex items-center gap-2 lg:gap-3 p-3 lg:p-4 rounded-2xl border border-gray-100 bg-soft-gray/20">
+                <ShieldCheck className="w-4 h-4 lg:w-5 lg:h-5 text-green-500" />
+                <span className="text-[10px] lg:text-xs font-bold text-dark uppercase tracking-wide">Bảo hành 2 năm</span>
               </div>
-              <div className="flex items-center gap-3 p-4 rounded-2xl border border-gray-100 bg-soft-gray/20">
-                <Zap className="w-5 h-5 text-amber-500" />
-                <span className="text-xs font-bold text-dark">Giao hàng nhanh</span>
+              <div className="flex items-center gap-2 lg:gap-3 p-3 lg:p-4 rounded-2xl border border-gray-100 bg-soft-gray/20">
+                <Zap className="w-4 h-4 lg:w-5 lg:h-5 text-amber-500" />
+                <span className="text-[10px] lg:text-xs font-bold text-dark uppercase tracking-wide">Giao nhanh 2h</span>
               </div>
             </div>
 
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 pt-4">
+            <div className="flex flex-col sm:flex-row gap-3 lg:gap-4 pt-2">
               <a 
                 href={zaloLink}
                 target="_blank"
-                className="flex-1 bg-primary text-white px-10 py-5 rounded-2xl font-bold flex items-center justify-center gap-3 shadow-xl shadow-primary/20 hover:bg-blue-600 transition-all hover:-translate-y-1"
+                className="flex-1 bg-primary text-white px-8 py-4 lg:py-5 rounded-2xl font-bold flex items-center justify-center gap-3 shadow-xl shadow-primary/20 hover:bg-blue-600 transition-all active:scale-95"
               >
-                <MessageSquare className="w-6 h-6" /> Tư vấn qua Zalo
+                <MessageSquare className="w-5 h-5 lg:w-6 lg:h-6" /> Tư vấn qua Zalo
               </a>
-              <button className="flex-1 border-2 border-dark text-dark px-10 py-5 rounded-2xl font-bold hover:bg-dark hover:text-white transition-all">
-                Thêm vào giỏ hàng
+              <button className="flex-1 border-2 border-dark text-dark px-8 py-4 lg:py-5 rounded-2xl font-bold hover:bg-dark hover:text-white transition-all active:scale-95">
+                Mua ngay
               </button>
             </div>
 
             {/* Mô tả chi tiết */}
-            <div className="pt-10 border-t border-gray-100">
-              <h3 className="font-bold text-dark mb-6 flex items-center gap-2">
+            <div className="pt-8 lg:pt-10 border-t border-gray-100">
+              <h3 className="font-bold text-dark mb-4 lg:mb-6 flex items-center gap-2">
                 <span className="w-1 h-5 bg-primary rounded-full"></span>
                 Mô tả sản phẩm
               </h3>
               <div 
-                className="prose prose-sm max-w-none text-gray-500 leading-relaxed"
+                className="prose prose-sm max-w-none text-gray-500 leading-relaxed text-sm lg:text-base"
                 dangerouslySetInnerHTML={{ __html: product.description || "Chưa có mô tả cho sản phẩm này." }}
               />
             </div>
@@ -127,15 +151,15 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
 
         {/* Sản phẩm liên quan */}
         {relatedProducts.length > 0 && (
-          <div className="mt-32">
-            <div className="text-center mb-16">
-              <h2 className="text-3xl font-bold text-dark font-serif mb-4">Sản Phẩm Tương Tự</h2>
-              <div className="w-16 h-1 bg-primary mx-auto"></div>
+          <div className="mt-20 lg:mt-32">
+            <div className="text-center mb-12 lg:mb-16">
+              <h2 className="text-2xl lg:text-3xl font-bold text-dark font-serif mb-3 lg:mb-4">Sản Phẩm Tương Tự</h2>
+              <div className="w-12 h-1 bg-primary mx-auto"></div>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-8">
               {relatedProducts.map((p: any) => (
-                <Link key={p.id} href={`/product/${p.slug}`} className="group space-y-4">
-                  <div className="aspect-[4/3] rounded-[2rem] overflow-hidden border border-gray-100">
+                <Link key={p.id} href={`/product/${p.slug}`} className="group space-y-3 lg:space-y-4">
+                  <div className="aspect-[4/3] rounded-2xl lg:rounded-[2rem] overflow-hidden border border-gray-100">
                     <img 
                       src={p.images[0]} 
                       alt={p.name} 
@@ -143,8 +167,8 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                     />
                   </div>
                   <div>
-                    <h4 className="font-bold text-dark group-hover:text-primary transition-colors line-clamp-1">{p.name}</h4>
-                    <p className="text-primary font-bold text-sm">
+                    <h4 className="font-bold text-xs lg:text-sm text-dark group-hover:text-primary transition-colors line-clamp-1">{p.name}</h4>
+                    <p className="text-primary font-bold text-xs lg:text-sm mt-1">
                       {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(p.price)}
                     </p>
                   </div>

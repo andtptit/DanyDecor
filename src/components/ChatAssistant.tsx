@@ -9,9 +9,8 @@ export default function ChatAssistant() {
   return (
     <div className="fixed bottom-8 right-8 z-50">
       <div
-        className={`${
-          isChatOpen ? "flex" : "hidden"
-        } w-[380px] max-w-[90vw] h-[500px] bg-white rounded-[2rem] shadow-2xl flex-col overflow-hidden border border-gray-100 mb-6 transition-all duration-300 origin-bottom-right`}
+        className={`${isChatOpen ? "flex" : "hidden"
+          } w-[380px] max-w-[90vw] h-[500px] bg-white rounded-[2rem] shadow-2xl flex-col overflow-hidden border border-gray-100 mb-6 transition-all duration-300 origin-bottom-right`}
       >
         <div className="bg-dark p-6 text-white flex justify-between items-center">
           <div className="flex items-center gap-3">

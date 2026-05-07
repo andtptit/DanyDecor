@@ -4,9 +4,14 @@ import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import ImageUploader from '@/components/admin/ImageUploader'
 import RichTextEditor from '@/components/admin/RichTextEditor'
+import CategorySubCategorySelect from '@/components/admin/CategorySubCategorySelect'
 
 export default async function CreateProductPage() {
-  const categories = await prisma.category.findMany().catch(() => [])
+  const categories = await prisma.category.findMany({
+    orderBy: {
+      name: 'asc'
+    }
+  }).catch(() => [])
 
   async function createProduct(formData: FormData) {
     'use server'
@@ -18,7 +23,6 @@ export default async function CreateProductPage() {
     const categoryId = formData.get('categoryId') as string
     const isFeatured = formData.get('isFeatured') === 'on'
     
-    // Images are comma-separated URLs from ImageUploader hidden input
     const imagesStr = formData.get('images') as string
     const images = imagesStr ? imagesStr.split(',').map(s => s.trim()).filter(Boolean) : []
 
@@ -51,31 +55,26 @@ export default async function CreateProductPage() {
 
       <div className="bg-white rounded-[2rem] border border-gray-100 shadow-sm p-8 max-w-3xl">
         <form action={createProduct} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 gap-6">
             <div>
               <label className="block text-sm font-bold text-dark mb-2">Tên sản phẩm *</label>
               <input name="name" required type="text" className="w-full bg-soft-gray border-none rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="VD: Tranh Canvas Hiện Đại" />
             </div>
-            <div>
-              <label className="block text-sm font-bold text-dark mb-2">Danh mục *</label>
-              <select name="categoryId" required className="w-full bg-soft-gray border-none rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20">
-                <option value="">Chọn danh mục</option>
-                {categories.map((cat: any) => (
-                  <option key={cat.id} value={cat.id}>{cat.name}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-bold text-dark mb-2">Giá bán (VNĐ) *</label>
-              <input name="price" required type="number" min="0" className="w-full bg-soft-gray border-none rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="VD: 500000" />
-            </div>
-            <div>
-              <label className="block text-sm font-bold text-dark mb-2">Giá gốc (VNĐ)</label>
-              <input name="originalPrice" type="number" min="0" className="w-full bg-soft-gray border-none rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="Chỉ điền nếu có giảm giá" />
+            
+            <CategorySubCategorySelect categories={categories} />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-bold text-dark mb-2">Giá bán (VNĐ) *</label>
+                <input name="price" required type="number" min="0" className="w-full bg-soft-gray border-none rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="VD: 500000" />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-dark mb-2">Giá gốc (VNĐ)</label>
+                <input name="originalPrice" type="number" min="0" className="w-full bg-soft-gray border-none rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="Chỉ điền nếu có giảm giá" />
+              </div>
             </div>
           </div>
 
-          {/* Image Upload Section */}
           <div>
             <label className="block text-sm font-bold text-dark mb-3">
               Hình ảnh sản phẩm
