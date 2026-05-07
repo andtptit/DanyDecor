@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ArtSign Studio - Tranh Treo Tường & Biển Quảng Cáo</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <!-- Nhúng thư viện Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        gold: '#c8973a',
+                        'gold-light': '#e8b86d',
+                        dark: '#0e0e12',
+                        'soft-gray': '#f8f9fa',
+                    },
+                    fontFamily: {
+                        sans: ['"Be Vietnam Pro"', 'sans-serif'],
+                        serif: ['"Playfair Display"', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Nhúng thư viện icon Lucide -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        :root {
+            --color-gold: #c8973a;
+            --color-dark: #1a1a1a;
+            --color-bg: #ffffff;
+            --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+            background-color: var(--color-bg);
+            color: var(--color-dark);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        h1, h2, h3, h4, .font-serif {
+            font-family: 'Playfair Display', serif;
+            letter-spacing: 0.01em;
+        }
+
+        .container-custom {
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+            padding-left: 1.5rem;
+            padding-right: 1.5rem;
+        }
+
+        .product-card {
+            transition: all var(--transition-base);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 30px rgba(200, 151, 58, 0.1);
+            border-color: rgba(200, 151, 58, 0.2);
+        }
+
+        .btn-gold {
+            background: var(--color-gold);
+            color: white;
+            transition: all var(--transition-base);
+        }
+
+        .btn-gold:hover {
+            background: #b58632;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(200, 151, 58, 0.3);
+        }
+
+        .glass-header {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+    </style>
+</head>
+
+<body class="bg-white text-dark antialiased relative">
+
+    <!-- Header / Navbar -->
+    <header class="glass-header sticky top-0 z-40">
+        <div class="container-custom py-5 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-gold rounded-xl flex items-center justify-center text-white">
+                    <i data-lucide="palette" class="w-6 h-6"></i>
+                </div>
+                <span class="font-serif font-bold text-2xl tracking-tight">ArtSign<span class="text-gold">Studio</span></span>
+            </div>
+            <nav class="hidden md:flex gap-10">
+                <a href="#tranh" class="text-sm uppercase tracking-widest font-semibold hover:text-gold transition-colors">Tranh Nghệ Thuật</a>
+                <a href="#bien-quang-cao" class="text-sm uppercase tracking-widest font-semibold hover:text-gold transition-colors">Biển Hiệu</a>
+                <a href="#reviews" class="text-sm uppercase tracking-widest font-semibold hover:text-gold transition-colors">Khách Hàng</a>
+            </nav>
+            <a href="https://m.me/yourfanpage" target="_blank"
+                class="btn-gold px-6 py-2.5 rounded-full font-bold text-sm flex items-center gap-2">
+                <i data-lucide="message-circle" class="w-4 h-4"></i>
+                Liên hệ
+            </a>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="relative bg-white text-dark py-20 lg:py-40 overflow-hidden border-b border-gray-100">
+        <div class="absolute top-0 right-0 w-1/2 h-full bg-soft-gray opacity-50 -skew-x-12 translate-x-1/4"></div>
+        <div class="container-custom relative grid lg:grid-cols-2 gap-12 items-center">
+            <div class="text-left">
+                <p class="text-gold font-bold uppercase tracking-[0.2em] mb-4 text-sm">Nâng tầm nghệ thuật sống</p>
+                <h1 class="text-5xl lg:text-7xl font-bold mb-8 leading-[1.1] text-dark">
+                    Không Gian <br /><span class="text-gold italic">Đẳng Cấp</span>
+                </h1>
+                <p class="text-lg text-gray-500 mb-10 max-w-xl leading-relaxed">
+                    Chuyên cung cấp giải pháp trang trí nội thất bằng tranh nghệ thuật và thiết kế biển hiệu chuyên nghiệp. Tinh tế trong từng đường nét, sang trọng trong mọi không gian.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <a href="#tranh"
+                        class="btn-gold px-10 py-4 rounded-full font-bold shadow-xl flex items-center justify-center gap-2">
+                        Khám phá bộ sưu tập <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                    </a>
+                    <a href="#bien-quang-cao"
+                        class="border-2 border-dark text-dark px-10 py-4 rounded-full font-bold hover:bg-dark hover:text-white transition-all flex items-center justify-center">
+                        Dịch vụ biển hiệu
+                    </a>
+                </div>
+            </div>
+            <div class="relative hidden lg:block">
+                <div class="aspect-square rounded-[3rem] overflow-hidden rotate-3 hover:rotate-0 transition-transform duration-700 shadow-2xl border-[12px] border-white">
+                    <img src="https://images.unsplash.com/photo-1513519245088-0e12902e5a38?q=80&w=2070&auto=format&fit=crop"
+                        alt="Hero Image" class="w-full h-full object-cover">
+                </div>
+                <div class="absolute -bottom-10 -left-10 bg-white p-6 rounded-3xl shadow-xl border border-gray-100 animate-bounce">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-gold/10 rounded-full flex items-center justify-center text-gold">
+                            <i data-lucide="award" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <p class="font-bold text-dark">Top 1 chất lượng</p>
+                            <p class="text-xs text-gray-400">Được khách hàng tin dùng</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Danh mục: Tranh Treo Tường -->
+    <section id="tranh" class="py-24 bg-white">
+        <div class="container-custom">
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
+                <div>
+                    <h2 class="text-4xl font-bold text-dark mb-4">Tranh Treo Tường Nghệ Thuật</h2>
+                    <p class="text-gray-500 max-w-xl">Bộ sưu tập tranh canvas, tranh tráng gương cao cấp được tuyển chọn để mang lại vẻ đẹp tinh tế cho ngôi nhà bạn.</p>
+                </div>
+                <div class="flex gap-4">
+                    <span class="text-sm font-bold uppercase tracking-widest text-gold">Premium Collection</span>
+                </div>
+            </div>
+
+            <!-- Lưới sản phẩm -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
+
+                <!-- Sản phẩm 1 -->
+                <div class="product-card bg-white rounded-3xl overflow-hidden flex flex-col">
+                    <div class="relative aspect-[4/3] overflow-hidden group">
+                        <img src="https://images.unsplash.com/photo-1544457070-4cd773b4d71e?q=80&w=800&auto=format&fit=crop"
+                            alt="Tranh Canvas Trừu Tượng" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                        <div class="absolute top-4 left-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">Canvas</div>
+                    </div>
+                    <div class="p-8 flex flex-col flex-grow">
+                        <h3 class="text-xl font-bold mb-3 text-dark group-hover:text-gold transition-colors">Bộ 3 Tranh Canvas Nhiệt Đới</h3>
+                        <p class="text-gray-500 text-sm mb-6 leading-relaxed">Vải Canvas cao cấp, khung composite chống mối mọt. Kích thước 40x60cm x3 tấm.</p>
+                        <div class="mt-auto flex items-center justify-between pt-6 border-t border-gray-50">
+                            <span class="text-xl font-bold text-gold">650.000đ</span>
+                            <a href="https://m.me/yourfanpage?ref=TRANH_CANVAS_NHIETDOI" target="_blank"
+                                class="flex items-center gap-2 bg-soft-gray text-dark px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-gold hover:text-white transition-all">
+                                <i data-lucide="message-square" class="w-4 h-4"></i> Tư vấn
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sản phẩm 2 -->
+                <div class="product-card bg-white rounded-3xl overflow-hidden flex flex-col">
+                    <div class="relative aspect-[4/3] overflow-hidden group">
+                        <img src="https://images.unsplash.com/photo-1580136608260-4eb11f4b24fe?q=80&w=800&auto=format&fit=crop"
+                            alt="Tranh Phong Cảnh" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                        <div class="absolute top-4 left-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">Tráng Gương</div>
+                    </div>
+                    <div class="p-8 flex flex-col flex-grow">
+                        <h3 class="text-xl font-bold mb-3 text-dark">Tranh Tráng Gương Bắc Âu</h3>
+                        <p class="text-gray-500 text-sm mb-6 leading-relaxed">Mica bóng kính sang trọng, dễ lau chùi. Phù hợp cho phòng khách hiện đại.</p>
+                        <div class="mt-auto flex items-center justify-between pt-6 border-t border-gray-50">
+                            <span class="text-xl font-bold text-gold">1.200.000đ</span>
+                            <a href="https://m.me/yourfanpage?ref=TRANH_GUONG_BACAU" target="_blank"
+                                class="flex items-center gap-2 bg-soft-gray text-dark px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-gold hover:text-white transition-all">
+                                <i data-lucide="message-square" class="w-4 h-4"></i> Tư vấn
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sản phẩm 3 -->
+                <div class="product-card bg-white rounded-3xl overflow-hidden flex flex-col">
+                    <div class="relative aspect-[4/3] overflow-hidden group">
+                        <img src="https://images.unsplash.com/photo-1577083552431-6e5fd01988ec?q=80&w=800&auto=format&fit=crop"
+                            alt="Tranh Chữ Slogan" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                        <div class="absolute top-4 left-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">Văn Phòng</div>
+                    </div>
+                    <div class="p-8 flex flex-col flex-grow">
+                        <h3 class="text-xl font-bold mb-3 text-dark">Tranh Động Lực Văn Phòng</h3>
+                        <p class="text-gray-500 text-sm mb-6 leading-relaxed">Typography hiện đại, tạo cảm hứng làm việc bứt phá cho đội ngũ nhân sự.</p>
+                        <div class="mt-auto flex items-center justify-between pt-6 border-t border-gray-50">
+                            <span class="text-xl font-bold text-gold">Từ 250.000đ</span>
+                            <a href="https://m.me/yourfanpage?ref=TRANH_DONG_LUC" target="_blank"
+                                class="flex items-center gap-2 bg-soft-gray text-dark px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-gold hover:te                <!-- Sản phẩm 4 -->
+                <div class="product-card bg-white rounded-3xl overflow-hidden flex flex-col">
+                    <div class="relative aspect-[4/3] overflow-hidden group">
+                        <img src="https://images.unsplash.com/photo-1544441893-675973e31985?q=80&w=800&auto=format&fit=crop"
+                            alt="Tranh Hoa Sen" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                        <div class="absolute top-4 left-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">Nghệ Thuật</div>
+                    </div>
+                    <div class="p-8 flex flex-col flex-grow">
+                        <h3 class="text-xl font-bold mb-3 text-dark">Tranh Hoa Sen Nghệ Thuật</h3>
+                        <p class="text-gray-500 text-sm mb-6 leading-relaxed">Dòng tranh canvas tĩnh tâm, màu sắc trang nhã, thích hợp cho phòng ngủ hoặc không gian thiền.</p>
+                        <div class="mt-auto flex items-center justify-between pt-6 border-t border-gray-50">
+                            <span class="text-xl font-bold text-gold">450.000đ</span>
+                            <a href="https://m.me/yourfanpage?ref=TRANH_HOA_SEN" target="_blank"
+                                class="flex items-center gap-2 bg-soft-gray text-dark px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-gold hover:text-white transition-all">
+                                <i data-lucide="message-square" class="w-4 h-4"></i> Tư vấn
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sản phẩm 5 -->
+                <div class="product-card bg-white rounded-3xl overflow-hidden flex flex-col">
+                    <div class="relative aspect-[4/3] overflow-hidden group">
+                        <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=800&auto=format&fit=crop"
+                            alt="Tranh Minimalist" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                        <div class="absolute top-4 left-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">Minimalist</div>
+                    </div>
+                    <div class="p-8 flex flex-col flex-grow">
+                        <h3 class="text-xl font-bold mb-3 text-dark">Bộ 2 Tranh Canvas Minimalist</h3>
+                        <p class="text-gray-500 text-sm mb-6 leading-relaxed">Phong cách tối giản tinh tế, tôn vinh vẻ đẹp hiện đại và sự thoáng đạt của mảng tường trống.</p>
+                        <div class="mt-auto flex items-center justify-between pt-6 border-t border-gray-50">
+                            <span class="text-xl font-bold text-gold">580.000đ</span>
+                            <a href="https://m.me/yourfanpage?ref=TRANH_MINIMALIST" target="_blank"
+                                class="flex items-center gap-2 bg-soft-gray text-dark px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-gold hover:text-white transition-all">
+                                <i data-lucide="message-square" class="w-4 h-4"></i> Tư vấn
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sản phẩm 6 -->
+                <div class="product-card bg-white rounded-3xl overflow-hidden flex flex-col">
+                    <div class="relative aspect-[4/3] overflow-hidden group">
+                        <img src="https://images.unsplash.com/photo-1518998053401-a4149019d146?q=80&w=800&auto=format&fit=crop"
+                            alt="Tranh Phong Thủy Mã Đáo" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                        <div class="absolute top-4 left-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">Phong Thủy</div>
+                    </div>
+                    <div class="p-8 flex flex-col flex-grow">
+                        <h3 class="text-xl font-bold mb-3 text-dark">Tranh Phong Thủy Mã Đáo</h3>
+                        <p class="text-gray-500 text-sm mb-6 leading-relaxed">Tráng gương cao cấp, mang lại tài lộc và may mắn. Quà tặng khai trương ý nghĩa.</p>
+                        <div class="mt-auto flex items-center justify-between pt-6 border-t border-gray-50">
+                            <span class="text-xl font-bold text-gold">1.500.000đ</span>
+                            <a href="https://m.me/yourfanpage?ref=TRANH_MA_DAO" target="_blank"
+                                class="flex items-center gap-2 bg-soft-gray text-dark px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-gold hover:text-white transition-all">
+                                <i data-lucide="message-square" class="w-4 h-4"></i> Tư vấn
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Danh mục: Biển Quảng Cáo -->
+    <section id="bien-quang-cao" class="py-24 bg-soft-gray">
+        <div class="container-custom">
+            <div class="text-center mb-20">
+                <h2 class="text-4xl font-bold text-dark mb-4 font-serif">Thiết Kế & Thi Công Biển Hiệu</h2>
+                <p class="text-gray-500 max-w-2xl mx-auto italic">Nâng tầm nhận diện thương hiệu với các giải pháp biển hiệu hiện đại và chuyên nghiệp.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <!-- Dịch vụ 1 -->
+                <div class="flex flex-col md:flex-row bg-white rounded-[2.5rem] overflow-hidden border border-gray-100 shadow-sm group">
+                    <div class="w-full md:w-2/5 h-64 md:h-auto overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1563206767-5b18f21f7abf?q=80&w=600&auto=format&fit=crop"
+                            alt="Biển LED Neon" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                    </div>
+                    <div class="p-10 flex flex-col justify-center w-full md:w-3/5">
+                        <div class="flex items-center gap-2 mb-4 text-gold">
+                            <i data-lucide="zap" class="w-5 h-5"></i>
+                            <span class="font-bold text-xs tracking-[0.2em] uppercase">Xu hướng</span>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-4 font-serif">Biển LED Neon Sign</h3>
+                        <p class="text-gray-500 mb-8 text-sm leading-relaxed">Uốn chữ nghệ thuật bằng dây LED Neon silicon. Tiết kiệm điện, màu sắc rực rỡ và trẻ trung.</p>
+                        <a href="https://m.me/yourfanpage?ref=BIEN_NEON_SIGN" target="_blank"
+                            class="btn-gold px-8 py-3.5 rounded-2xl font-bold text-sm inline-flex w-fit items-center gap-2">
+                            <i data-lucide="pen-tool" class="w-5 h-5"></i> Phác thảo 3D
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Dịch vụ 2 -->
+                <div class="flex flex-col md:flex-row bg-white rounded-[2.5rem] overflow-hidden border border-gray-100 shadow-sm group">
+                    <div class="w-full md:w-2/5 h-64 md:h-auto overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=600&auto=format&fit=crop"
+                            alt="Biển Chữ Nổi" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                    </div>
+                    <div class="p-10 flex flex-col justify-center w-full md:w-3/5">
+                        <div class="flex items-center gap-2 mb-4 text-gold">
+                            <i data-lucide="shield-check" class="w-5 h-5"></i>
+                            <span class="font-bold text-xs tracking-[0.2em] uppercase">Bền Bỉ</span>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-4 font-serif">Chữ Nổi Mica / Alu</h3>
+                        <p class="text-gray-500 mb-8 text-sm leading-relaxed">Mặt dựng Alu cao cấp, chữ nổi Mica uốn chân sắc nét. Bảo hành độ bền lên đến 24 tháng.</p>
+                        <a href="https://m.me/yourfanpage?ref=BIEN_CHU_NOI_ALU" target="_blank"
+                            class="btn-gold px-8 py-3.5 rounded-2xl font-bold text-sm inline-flex w-fit items-center gap-2">
+                            <i data-lucide="calculator" class="w-5 h-5"></i> Nhận báo giá
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Reviews / Social Proof -->
+    <section id="reviews" class="py-24 bg-white">
+        <div class="container-custom">
+            <div class="text-center mb-20">
+                <h2 class="text-4xl font-bold text-dark mb-4 font-serif">Khách Hàng Chia Sẻ</h2>
+                <div class="flex justify-center gap-1.5 text-gold">
+                    <i data-lucide="star" class="w-5 h-5 fill-current"></i>
+                    <i data-lucide="star" class="w-5 h-5 fill-current"></i>
+                    <i data-lucide="star" class="w-5 h-5 fill-current"></i>
+                    <i data-lucide="star" class="w-5 h-5 fill-current"></i>
+                    <i data-lucide="star" class="w-5 h-5 fill-current"></i>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Review 1 -->
+                <div class="bg-soft-gray p-10 rounded-[2rem] border border-gray-100 hover:shadow-xl transition-shadow">
+                    <p class="text-gray-600 italic mb-8 leading-relaxed">"Tranh canvas in rất sắc nét, màu sắc chuẩn y như hình tư vấn. Giao hàng cẩn thận không bị trầy xước. Mình treo phòng khách ai vào cũng khen."</p>
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-gold/10 text-gold rounded-full flex items-center justify-center font-bold text-lg">M</div>
+                        <div>
+                            <p class="font-bold text-dark">Chị Mai Anh</p>
+                            <p class="text-[10px] text-gold font-bold uppercase tracking-widest">Tranh Trừu Tượng</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Review 2 -->
+                <div class="bg-soft-gray p-10 rounded-[2rem] border border-gray-100 hover:shadow-xl transition-shadow">
+                    <p class="text-gray-600 italic mb-8 leading-relaxed">"Shop tư vấn rất nhiệt tình. Làm quả biển Neon Sign chữ 'Chillout' cho quán cafe siêu ưng, lên đèn buổi tối chụp check-in cực đẹp."</p>
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-gold/10 text-gold rounded-full flex items-center justify-center font-bold text-lg">H</div>
+                        <div>
+                            <p class="font-bold text-dark">Anh Hoàng Nam</p>
+                            <p class="text-[10px] text-gold font-bold uppercase tracking-widest">Biển LED Neon</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Review 3 -->
+                <div class="bg-soft-gray p-10 rounded-[2rem] border border-gray-100 hover:shadow-xl transition-shadow">
+                    <p class="text-gray-600 italic mb-8 leading-relaxed">"Đã làm biển Alu chữ nổi tại đây. Thi công nhanh, đúng tiến độ và rất chuyên nghiệp. Giá cả hợp lý so với chất lượng nhận được."</p>
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-gold/10 text-gold rounded-full flex items-center justify-center font-bold text-lg">T</div>
+                        <div>
+                            <p class="font-bold text-dark">Anh Trung Kiên</p>
+                            <p class="text-[10px] text-gold font-bold uppercase tracking-widest">Biển Chữ Nổi</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>v>
+                    </div>
+                </div>
+                <!-- Review 2 -->
+                <div class="bg-slate-800 p-6 rounded-2xl">
+                    <p class="text-gray-300 italic mb-4">"Shop tư vấn rất nhiệt tình bên Fanpage. Làm quả biển Neon Sign
+                        chữ 'Chillout' cho quán cafe siêu ưng, lên đèn buổi tối chụp check-in quá đẹp."</p>
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-slate-600 rounded-full flex items-center justify-center font-bold">H
+                        </div>
+                        <div>
+                            <p class="font-bold">Anh Hoàng Tôn</p>
+                            <p class="text-xs text-gray-400">Chủ quán Cafe Chillout</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Review 3 -->
+                <div class="bg-slate-800 p-6 rounded-2xl">
+                    <p class="text-gray-300 italic mb-4">"Thi công biển Alu chữ nổi nhanh chóng, thợ làm tỉ mỉ. Giá cả
+                        hợp lý so với mặt bằng chung mà dịch vụ bảo hành rõ ràng."</p>
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-slate-600 rounded-full flex items-center justify-center font-bold">L
+                        </div>
+                        <div>
+                            <p class="font-bold">Anh Lâm Phương</p>
+                            <p class="text-xs text-gray-400">Cửa hàng Thời trang Mộc</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-soft-gray border-t border-gray-100 py-16">
+        <div class="container-custom flex flex-col md:flex-row justify-between items-center gap-10">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-gold rounded-lg flex items-center justify-center text-white">
+                    <i data-lucide="palette" class="w-5 h-5"></i>
+                </div>
+                <span class="font-serif font-bold text-xl text-dark tracking-tight">ArtSign<span class="text-gold">Studio</span></span>
+            </div>
+            <div class="text-gray-400 text-xs uppercase tracking-widest font-bold text-center md:text-left">
+                © 2024 ArtSign Studio · Crafted with Passion
+            </div>
+            <div class="flex gap-6">
+                <a href="#" class="text-dark hover:text-gold transition-colors">
+                    <i data-lucide="facebook" class="w-5 h-5"></i>
+                </a>
+                <a href="#" class="text-dark hover:text-gold transition-colors">
+                    <i data-lucide="instagram" class="w-5 h-5"></i>
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Chatbot AI (Tích hợp Gemini API) -->
+    <div id="ai-chat-container" class="fixed bottom-8 right-8 z-50">
+        <!-- Chat Window -->
+        <div id="ai-chat-window"
+            class="hidden w-[380px] max-w-[90vw] h-[500px] bg-white rounded-[2rem] shadow-2xl flex flex-col overflow-hidden border border-gray-100 mb-6 transition-all duration-300 transform origin-bottom-right">
+            <div class="bg-dark p-6 text-white flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-gold rounded-xl flex items-center justify-center">
+                        <i data-lucide="bot" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <p class="font-bold text-sm">AI Assistant</p>
+                        <p class="text-[10px] text-gray-400 uppercase tracking-widest">ArtSign Studio</p>
+                    </div>
+                </div>
+                <button id="close-chat" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-gold transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div id="chat-messages" class="flex-1 p-6 overflow-y-auto bg-soft-gray flex flex-col gap-4 text-sm">
+                <!-- Tin nhắn mặc định -->
+                <div class="bg-white text-dark p-4 rounded-2xl rounded-tl-none self-start max-w-[85%] shadow-sm border border-gray-100 leading-relaxed">
+                    Xin chào! Tôi là trợ lý AI của **ArtSign Studio** 🎨. Tôi có thể giúp gì cho bạn trong việc chọn tranh hoặc thiết kế biển hiệu hôm nay?
+                </div>
+            </div>
+            <div class="p-4 bg-white border-t border-gray-50 flex gap-2 items-center">
+                <input type="text" id="chat-input"
+                    class="flex-1 bg-soft-gray border-none text-sm rounded-2xl px-5 py-3 focus:outline-none focus:ring-2 focus:ring-gold/20 transition-all"
+                    placeholder="Hỏi về tranh, biển hiệu...">
+                <button id="send-chat"
+                    class="bg-gold text-white w-12 h-12 rounded-2xl flex items-center justify-center hover:bg-gold-light shadow-lg transition-all shrink-0">
+                    <i data-lucide="send" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Nút mở chat -->
+        <button id="chat-fab"
+            class="w-16 h-16 bg-gold text-white rounded-[1.5rem] shadow-2xl flex items-center justify-center hover:rotate-6 hover:scale-110 transition-all ml-auto relative group">
+            <i data-lucide="sparkles" class="w-7 h-7 group-hover:animate-pulse"></i>
+            <span class="absolute -top-1 -right-1 flex h-5 w-5">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-gold opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-5 w-5 bg-gold border-2 border-white"></span>
+            </span>
+        </button>
+    </div>
+
+    <!-- Khởi tạo Icon & Logic cho AI Chat -->
+    <script>
+        lucide.createIcons();
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const fab = document.getElementById('chat-fab');
+            const chatWindow = document.getElementById('ai-chat-window');
+            const closeBtn = document.getElementById('close-chat');
+            const inputField = document.getElementById('chat-input');
+            const sendBtn = document.getElementById('send-chat');
+            const messagesContainer = document.getElementById('chat-messages');
+
+            let isChatOpen = false;
+
+            function toggleChat() {
+                isChatOpen = !isChatOpen;
+                if (isChatOpen) {
+                    chatWindow.classList.remove('hidden');
+                    chatWindow.classList.add('flex');
+                    setTimeout(() => inputField.focus(), 100);
+                } else {
+                    chatWindow.classList.add('hidden');
+                    chatWindow.classList.remove('flex');
+                }
+            }
+
+            fab.addEventListener('click', toggleChat);
+            closeBtn.addEventListener('click', toggleChat);
+
+            function appendMessage(text, isUser) {
+                const msgDiv = document.createElement('div');
+                const formattedText = text.replace(/\n/g, '<br>');
+
+                if (isUser) {
+                    msgDiv.className = 'bg-gold text-white p-4 rounded-2xl rounded-tr-none self-end max-w-[85%] shadow-sm leading-relaxed';
+                } else {
+                    msgDiv.className = 'bg-white text-dark p-4 rounded-2xl rounded-tl-none self-start max-w-[85%] shadow-sm border border-gray-100 leading-relaxed';
+                }
+                
+                msgDiv.innerHTML = formattedText;
+                messagesContainer.appendChild(msgDiv);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+
+            async function callGeminiAPI(promptText) {
+                const apiKey = ""; // API key chèn tự động
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+
+                const payload = {
+                    contents: [{ parts: [{ text: promptText }] }],
+                    systemInstruction: {
+                        parts: [{
+                            text: "Bạn là nhân viên tư vấn của ArtSign Studio. Hãy trả lời ngắn gọn, tinh tế, sang trọng. Khuyên khách hàng bấm nút 'Liên hệ' để được hỗ trợ tốt nhất."
+                        }]
+                    }
+                };
+
+                const attemptFetch = async (retries = 5, delay = 1000) => {
+                    try {
+                        const response = await fetch(url, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+                        if (!response.ok) throw new Error('API Error');
+                        const data = await response.json();
+                        return data.candidates?.[0]?.content?.parts?.[0]?.text || "Tôi có thể giúp gì thêm cho bạn?";
+                    } catch (error) {
+                        if (retries > 0) {
+                            await new Promise(r => setTimeout(r, delay));
+                            return attemptFetch(retries - 1, delay * 2);
+                        }
+                        throw error;
+                    }
+                };
+
+                return await attemptFetch();
+            }
+
+            async function handleSend() {
+                const text = inputField.value.trim();
+                if (!text) return;
+
+                appendMessage(text, true);
+                inputField.value = '';
+
+                const loadingDiv = document.createElement('div');
+                loadingDiv.className = 'text-gray-400 text-[10px] uppercase tracking-widest font-bold self-start ml-2 mt-1';
+                loadingDiv.innerHTML = 'AI Assistant is typing...';
+                messagesContainer.appendChild(loadingDiv);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+                try {
+                    const responseText = await callGeminiAPI(text);
+                    messagesContainer.removeChild(loadingDiv);
+                    appendMessage(responseText, false);
+                } catch (error) {
+                    messagesContainer.removeChild(loadingDiv);
+                    appendMessage("Xin lỗi, tôi đang bận một chút. Bạn vui lòng bấm nút Liên hệ nhé!", false);
+                }
+            }
+
+            sendBtn.addEventListener('click', handleSend);
+            inputField.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') handleSend();
+            });
+        });
+    </script>
+</body>
+
+</html>

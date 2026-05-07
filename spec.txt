@@ -1,0 +1,78 @@
+TÀI LIỆU ĐẶC TẢ DỰ ÁN: WEBSITE CATALOG TRANH TREO TƯỜNG (DANYDECOR)
+I. Tổng quan dự án (Project Overview)
+Mục tiêu: Xây dựng website dạng danh mục sản phẩm (Catalog) giới thiệu các dòng tranh nghệ thuật. Hệ thống không tích hợp giỏ hàng hay thanh toán trực tuyến.
+
+Chuyển đổi (Conversion): Tất cả luồng mua hàng sẽ được điều hướng về Zalo và Fanpage thông qua các nút Call-to-Action (CTA) gắn kèm thông tin sản phẩm.
+
+Phân quyền: Bao gồm 02 Role (Guest/Khách truy cập và Admin/Quản trị viên).
+
+II. Ngăn xếp Công nghệ (Tech Stack) & Yêu cầu Kỹ thuật
+Team phát triển bắt buộc tuân thủ bộ công nghệ sau:
+
+Frontend: Next.js (App Router), React.
+
+Styling: Tailwind CSS. Yêu cầu cốt lõi: Quản lý layout ưu tiên sử dụng đơn vị phần trăm (%) thay vì fixed pixel (px) để đảm bảo tính linh hoạt, co giãn tuyệt đối trên mọi kích thước màn hình. Các phép toán tính toán font-size hay line-height cũng cần áp dụng tư duy tương đối này.
+
+Backend: Next.js API Routes (Server Actions).
+
+Database: PostgreSQL.
+
+ORM: Prisma.
+
+BaaS (Backend as a Service): Supabase (sử dụng Postgres Database, Authentication cho Admin và Storage để lưu trữ hình ảnh).
+
+Deployment: Vercel.
+
+
+IV. Đặc tả Tính năng (Feature Specifications)
+1. Phân hệ Khách hàng (User/Guest Role)
+Trang chủ (Homepage):
+
+Hiển thị Banner Slider (Hardcode hoặc lấy từ cấu hình).
+
+Hiển thị các block danh mục nổi bật (4 danh mục chính).
+
+Section "Sản phẩm nổi bật/Bán chạy" (Query các Product có isFeatured = true).
+
+Trang Danh sách Sản phẩm (Category Page):
+
+Hiển thị theo Grid (tối ưu % layout cho Mobile 2 cột, PC 4 cột).
+
+Tính năng: Lọc sản phẩm theo danh mục.
+
+Trang Chi tiết Sản phẩm (Product Detail Page):
+
+Hiển thị bộ sưu tập ảnh (Image Gallery).
+
+Hiển thị Tên, Giá, các tuỳ chọn (Chỉ mang tính hiển thị để khách biết sản phẩm có size/khung màu gì).
+
+Khối nội dung chi tiết: Render dữ liệu description (Hiển thị các gạch đầu dòng về chất liệu, ưu điểm, hướng dẫn treo tranh tặng kèm đinh 3 chân, v.v.).
+
+Nút CTA (Call To Action):
+
+Nút 1: "Nhận tư vấn Zalo" -> Mở Zalo (Deep link) với lời nhắn được parse sẵn tên sản phẩm/link URL.
+
+Nút 2: "Chat qua Fanpage" -> Mở link Messenger (m.me/...) kèm thông tin tương tự.
+
+2. Phân hệ Quản trị (Admin Role - Custom CMS)
+Hệ thống quản lý nội bộ với đường dẫn /admin.
+
+Authentication: Đăng nhập bằng Email/Password (Sử dụng Supabase Auth).
+
+Quản lý Danh mục (Category Management):
+
+Tạo/Sửa/Xóa danh mục. Tự động generate slug từ tên danh mục.
+
+Quản lý Sản phẩm (Product Management):
+
+Thêm mới/Cập nhật:
+
+Nhập thông tin cơ bản (Tên, Giá, chọn Danh mục).
+
+Upload nhiều ảnh cùng lúc lên Supabase Storage, trả về mảng URL lưu vào DB.
+
+Thêm dynamic tags cho Kích thước và Màu viền khung.
+
+Sử dụng trình soạn thảo Rich Text (vd: React Quill) để Admin format nội dung mô tả (in đậm, danh sách hạt chia).
+
+Danh sách: Bảng (Table) liệt kê sản phẩm, có thanh tìm kiếm, phân trang (Pagination). Có toggle bật/tắt isFeatured.
