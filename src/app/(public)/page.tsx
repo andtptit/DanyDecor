@@ -3,7 +3,7 @@ import prisma from "@/lib/prisma";
 import ChatAssistant from "@/components/ChatAssistant";
 import HeroBanner from "@/components/HeroBanner";
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60; // Revalidate data every 60 seconds
 
 export default async function Home() {
   // Lấy dữ liệu từ database

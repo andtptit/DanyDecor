@@ -4,7 +4,7 @@ import Link from "next/link";
 import ShopSort from "@/components/ShopSort";
 import { Suspense } from "react";
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 interface ShopPageProps {
   searchParams: Promise<{

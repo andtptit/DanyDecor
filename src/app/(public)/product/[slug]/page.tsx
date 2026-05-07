@@ -4,7 +4,7 @@ import { MessageSquare, ShieldCheck, Zap, ChevronRight, Home as HomeIcon } from 
 import Link from "next/link";
 import ProductImages from "@/components/ProductImages";
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 interface ProductPageProps {
   params: Promise<{
