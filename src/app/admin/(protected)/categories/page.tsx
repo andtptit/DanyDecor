@@ -2,6 +2,9 @@ import prisma from '@/lib/prisma'
 import { Edit, Trash } from 'lucide-react'
 import { revalidatePath } from 'next/cache'
 import Link from 'next/link'
+
+export const dynamic = 'force-dynamic';
+
 export default async function CategoriesAdminPage() {
   const categories = await prisma.category.findMany({
     orderBy: { createdAt: 'desc' }

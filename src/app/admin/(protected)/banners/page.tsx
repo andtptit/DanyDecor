@@ -3,6 +3,8 @@ import { revalidatePath } from 'next/cache'
 import { Trash, ToggleLeft, ToggleRight, ImageIcon } from 'lucide-react'
 import ImageUploader from '@/components/admin/ImageUploader'
 
+export const dynamic = 'force-dynamic';
+
 export default async function BannersAdminPage() {
   const banners = await prisma.banner.findMany({
     orderBy: { createdAt: 'desc' }

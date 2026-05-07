@@ -3,6 +3,8 @@ import prisma from '@/lib/prisma'
 import Link from "next/link";
 import { revalidatePath } from "next/cache";
 
+export const dynamic = 'force-dynamic';
+
 export default async function ProductsAdminPage() {
   const products = await prisma.product.findMany({
     include: { category: true },
