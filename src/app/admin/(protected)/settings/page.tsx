@@ -1,6 +1,16 @@
-import { Settings as SettingsIcon, Save, Phone, MessageCircle } from "lucide-react";
+import { Settings as SettingsIcon } from "lucide-react";
+import prisma from "@/lib/prisma";
+import SettingsForm from "./SettingsForm";
 
-export default function SettingsPage() {
+export default async function SettingsPage() {
+  const settingsData = await prisma.setting.findMany();
+  
+  const initialData = {
+    zalo_phone: settingsData.find(s => s.key === 'NEXT_PUBLIC_ZALO_PHONE')?.value || process.env.NEXT_PUBLIC_ZALO_PHONE || '',
+    messenger_url: settingsData.find(s => s.key === 'NEXT_PUBLIC_MESSENGER_URL')?.value || process.env.NEXT_PUBLIC_MESSENGER_URL || '',
+    shop_address: settingsData.find(s => s.key === 'SHOP_ADDRESS')?.value || '',
+  };
+
   return (
     <div className="max-w-4xl">
       {/* Header */}
@@ -10,51 +20,10 @@ export default function SettingsPage() {
       </div>
 
       <div className="grid gap-8">
-        {/* Thông tin liên hệ */}
-        <div className="bg-white rounded-[2rem] border border-gray-100 shadow-sm p-8">
-          <h2 className="text-xl font-bold text-dark mb-6 flex items-center gap-3">
-            <Phone className="w-5 h-5 text-primary" /> Thông tin liên hệ (Zalo/Hotline)
-          </h2>
-          
-          <form className="space-y-6">
-            <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-bold text-dark mb-2">Số điện thoại Zalo</label>
-                <input 
-                  type="text" 
-                  placeholder="09xx xxx xxx"
-                  className="w-full bg-soft-gray border-none rounded-xl px-5 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-bold text-dark mb-2">Link Messenger Facebook</label>
-                <input 
-                  type="text" 
-                  placeholder="https://m.me/yourpage"
-                  className="w-full bg-soft-gray border-none rounded-xl px-5 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
-                />
-              </div>
-            </div>
+        {/* Form cài đặt (Client Component) */}
+        <SettingsForm initialData={initialData} />
 
-            <div>
-              <label className="block text-sm font-bold text-dark mb-2">Địa chỉ cửa hàng</label>
-              <textarea 
-                rows={3}
-                placeholder="Số 123, đường ABC..."
-                className="w-full bg-soft-gray border-none rounded-xl px-5 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
-              ></textarea>
-            </div>
-
-            <button 
-              type="button"
-              className="flex items-center gap-2 bg-primary text-white px-8 py-3 rounded-xl font-bold text-sm hover:bg-blue-600 transition-colors shadow-lg shadow-primary/20"
-            >
-              <Save className="w-4 h-4" /> Lưu cấu hình
-            </button>
-          </form>
-        </div>
-
-        {/* Cấu hình SEO & Website */}
+        {/* Cấu hình SEO & Website (Mockup for now) */}
         <div className="bg-white rounded-[2rem] border border-gray-100 shadow-sm p-8">
           <h2 className="text-xl font-bold text-dark mb-6 flex items-center gap-3">
             <SettingsIcon className="w-5 h-5 text-primary" /> Cấu hình Website
@@ -86,3 +55,4 @@ export default function SettingsPage() {
     </div>
   );
 }
+

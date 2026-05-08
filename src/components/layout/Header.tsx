@@ -1,7 +1,10 @@
 import Link from "next/link";
 import { Palette, MessageCircle } from "lucide-react";
+import { getPublicSettings } from "@/lib/settings";
 
-export default function Header() {
+export default async function Header() {
+  const { zaloPhone } = await getPublicSettings();
+  
   return (
     <header className="glass-header sticky top-0 z-40">
       <div className="container-custom py-4 lg:py-5 flex justify-between items-center">
@@ -34,7 +37,7 @@ export default function Header() {
         {/* Call to action */}
         <div className="flex items-center gap-2 lg:gap-4">
           <a
-            href={`https://zalo.me/${process.env.NEXT_PUBLIC_ZALO_PHONE || '0987654321'}`}
+            href={`https://zalo.me/${zaloPhone}`}
             target="_blank"
             rel="noopener noreferrer"
             className="btn-primary px-4 lg:px-6 py-2 lg:py-2.5 rounded-full font-bold text-[10px] lg:text-xs flex items-center gap-2 whitespace-nowrap"
@@ -47,3 +50,4 @@ export default function Header() {
     </header>
   );
 }
+

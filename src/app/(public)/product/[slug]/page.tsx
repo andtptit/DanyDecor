@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { MessageSquare, ShieldCheck, Zap, ChevronRight, Home as HomeIcon } from "lucide-react";
 import Link from "next/link";
 import ProductImages from "@/components/ProductImages";
+import { getPublicSettings } from "@/lib/settings";
 
 export const revalidate = 60;
 
@@ -14,6 +15,7 @@ interface ProductPageProps {
 
 export default async function ProductDetailPage({ params }: ProductPageProps) {
   const { slug } = await params;
+  const { zaloPhone } = await getPublicSettings();
 
   const product = await prisma.product.findUnique({
     where: { slug },
@@ -39,7 +41,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     orderBy: { createdAt: 'desc' }
   }).catch(() => []);
 
-  const zaloLink = `https://zalo.me/${process.env.NEXT_PUBLIC_ZALO_PHONE || '0987654321'}`;
+  const zaloLink = `https://zalo.me/${zaloPhone}`;
 
   return (
     <div className="bg-white min-h-screen">

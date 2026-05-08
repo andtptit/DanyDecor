@@ -3,10 +3,12 @@ import prisma from "@/lib/prisma";
 import ChatAssistant from "@/components/ChatAssistant";
 import HeroBanner from "@/components/HeroBanner";
 import Link from "next/link";
+import { getPublicSettings } from "@/lib/settings";
 
 export const revalidate = 60; // Revalidate data every 60 seconds
 
 export default async function Home() {
+  const { zaloPhone } = await getPublicSettings();
   // Lấy dữ liệu từ database
   const [banners, featuredProducts, allRootCategories] = await Promise.all([
     prisma.banner.findMany({
@@ -193,7 +195,7 @@ export default async function Home() {
                         )}
                       </div>
                       <a
-                        href={`https://zalo.me/${process.env.NEXT_PUBLIC_ZALO_PHONE || '0987654321'}`}
+                        href={`https://zalo.me/${zaloPhone}`}
                         target="_blank"
                         className="flex items-center gap-2 bg-soft-gray text-dark px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-primary hover:text-white transition-all"
                       >
