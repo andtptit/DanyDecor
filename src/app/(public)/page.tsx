@@ -14,18 +14,18 @@ export default async function Home() {
     prisma.banner.findMany({
       where: { isActive: true },
       orderBy: { createdAt: "desc" },
-    }).catch(() => []),
+    }).catch((e) => { console.error("Banner fetch error:", e); return []; }),
     prisma.product.findMany({
       where: { isFeatured: true },
       take: 6,
       orderBy: { createdAt: "desc" },
       include: { category: true }
-    }).catch(() => []),
+    }).catch((e) => { console.error("Product fetch error:", e); return []; }),
     prisma.category.findMany({
       where: { parentId: null }, // Chỉ lấy các danh mục gốc
       orderBy: { name: "asc" },
       take: 4 // Tối đa 4 danh mục
-    }).catch(() => [])
+    }).catch((e) => { console.error("Category fetch error:", e); return []; })
   ]);
 
   // Tính toán số cột động cho danh mục

@@ -4,6 +4,9 @@ import { PrismaPg } from '@prisma/adapter-pg'
 
 const prismaClientSingleton = () => {
   const connectionString = process.env.DATABASE_URL
+  if (!connectionString) {
+    console.error("CRITICAL: DATABASE_URL is missing in environment variables!");
+  }
   
   const pool = new Pool({ 
     connectionString,
