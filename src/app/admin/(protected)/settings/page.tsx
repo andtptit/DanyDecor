@@ -2,8 +2,10 @@ import { Settings as SettingsIcon } from "lucide-react";
 import prisma from "@/lib/prisma";
 import SettingsForm from "./SettingsForm";
 
+export const dynamic = 'force-dynamic';
+
 export default async function SettingsPage() {
-  const settingsData = await prisma.setting.findMany();
+  const settingsData = await prisma.setting.findMany().catch(() => []);
   
   const initialData = {
     zalo_phone: settingsData.find(s => s.key === 'NEXT_PUBLIC_ZALO_PHONE')?.value || process.env.NEXT_PUBLIC_ZALO_PHONE || '',
