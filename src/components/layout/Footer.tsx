@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Palette, Facebook, MessageCircle, Phone, MapPin, Share2 } from "lucide-react";
+import { Palette, Share2, MessageCircle, Phone, MapPin } from "lucide-react";
 import { getPublicSettings } from "@/lib/settings";
 
 export default async function Footer() {
