@@ -16,37 +16,33 @@ export default function Header() {
         </Link>
 
         {/* Navigation */}
-        <nav className="hidden md:flex gap-10">
+        <nav className="hidden lg:flex gap-8">
           <Link
             href="/#tranh"
-            className="text-sm uppercase tracking-widest font-semibold hover:text-primary transition-colors"
+            className="text-[11px] uppercase tracking-[0.2em] font-bold hover:text-primary transition-colors"
           >
-            Tranh Nghệ Thuật
-          </Link>
-          <Link
-            href="/#bien-quang-cao"
-            className="text-sm uppercase tracking-widest font-semibold hover:text-primary transition-colors"
-          >
-            Khung Tranh
+            Sản Phẩm
           </Link>
           <Link
             href="/#reviews"
-            className="text-sm uppercase tracking-widest font-semibold hover:text-primary transition-colors"
+            className="text-[11px] uppercase tracking-[0.2em] font-bold hover:text-primary transition-colors"
           >
-            Khách Hàng
+            Đánh Giá
           </Link>
         </nav>
 
         {/* Call to action */}
-        <a
-          href={`https://zalo.me/${process.env.NEXT_PUBLIC_ZALO_PHONE || '0987654321'}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="btn-primary px-4 lg:px-6 py-2 lg:py-2.5 rounded-full font-bold text-xs lg:text-sm flex items-center gap-2"
-        >
-          <MessageCircle className="w-4 h-4" />
-          <span className="hidden xs:inline">Liên hệ</span> Zalo
-        </a>
+        <div className="flex items-center gap-2 lg:gap-4">
+          <a
+            href={`https://zalo.me/${process.env.NEXT_PUBLIC_ZALO_PHONE || '0987654321'}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-primary px-4 lg:px-6 py-2 lg:py-2.5 rounded-full font-bold text-[10px] lg:text-xs flex items-center gap-2 whitespace-nowrap"
+          >
+            <MessageCircle className="w-3.5 h-3.5 lg:w-4 lg:h-4" />
+            <span className="hidden sm:inline">Liên hệ</span> Zalo
+          </a>
+        </div>
       </div>
     </header>
   );

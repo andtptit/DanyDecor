@@ -14,19 +14,18 @@
   --foreground: #0e0e12;
 }
 
-html, body {
-  overflow-x: hidden;
-  width: 100%;
-  position: relative;
+html {
   scroll-behavior: smooth;
 }
 
 body {
+  min-height: 100vh;
+  position: relative;
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), sans-serif;
   -webkit-font-smoothing: antialiased;
-  -webkit-text-size-adjust: 100%; /* Ngăn chặn tự động zoom text trên iOS */
+  -webkit-text-size-adjust: 100%;
 }
 
 /* Ẩn scrollbar cho các thành phần cần thiết */
@@ -85,5 +84,18 @@ body {
     background: rgba(255, 255, 255, 0.85);
     backdrop-filter: blur(10px);
     border-bottom: 1px solid rgba(0,0,0,0.05);
+  }
+
+  /* Đảm bảo nội dung rich text không làm vỡ layout */
+  .prose img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 1rem;
+  }
+  
+  .prose table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
   }
 }

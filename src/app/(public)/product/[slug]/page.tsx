@@ -44,39 +44,41 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   return (
     <div className="bg-white min-h-screen">
       {/* Breadcrumbs */}
-      <div className="bg-soft-gray/30 py-3 lg:py-4">
+      <div className="bg-soft-gray/30 py-3 lg:py-4 border-b border-gray-100/50 overflow-hidden">
         <div className="container-custom">
-          <nav className="flex items-center gap-2 text-[10px] lg:text-xs font-medium text-gray-400 overflow-x-auto whitespace-nowrap pb-1 no-scrollbar">
-            <Link href="/" className="hover:text-primary transition-colors flex items-center gap-1">
+          <nav className="flex items-center gap-2 text-[10px] lg:text-xs font-medium text-gray-400 overflow-x-auto no-scrollbar whitespace-nowrap">
+            <Link href="/" className="hover:text-primary transition-colors flex items-center gap-1 flex-shrink-0">
               <HomeIcon className="w-3 h-3" /> Trang chủ
             </Link>
             <ChevronRight className="w-3 h-3 flex-shrink-0" />
-            <Link href="/shop" className="hover:text-primary transition-colors">Cửa hàng</Link>
+            <Link href="/shop" className="hover:text-primary transition-colors flex-shrink-0">Cửa hàng</Link>
             <ChevronRight className="w-3 h-3 flex-shrink-0" />
             {product.category.parent && (
                 <>
-                    <Link href={`/shop?category=${product.category.parentId}`} className="hover:text-primary transition-colors">
+                    <Link href={`/shop?category=${product.category.parentId}`} className="hover:text-primary transition-colors flex-shrink-0 max-w-[80px] truncate">
                         {product.category.parent.name}
                     </Link>
                     <ChevronRight className="w-3 h-3 flex-shrink-0" />
                 </>
             )}
-            <Link href={`/shop?category=${product.categoryId}`} className="hover:text-primary transition-colors">
+            <Link href={`/shop?category=${product.categoryId}`} className="hover:text-primary transition-colors flex-shrink-0 max-w-[80px] truncate">
               {product.category.name}
             </Link>
             <ChevronRight className="w-3 h-3 flex-shrink-0" />
-            <span className="text-dark truncate">{product.name}</span>
+            <span className="text-dark truncate flex-1 min-w-0">{product.name}</span>
           </nav>
         </div>
       </div>
 
-      <main className="container-custom py-8 lg:py-20">
+      <main className="container-custom py-8 lg:py-20 overflow-hidden">
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-start">
           {/* Cột trái: Hình ảnh (Client Component) */}
-          <ProductImages images={product.images} />
+          <div className="w-full min-w-0 overflow-hidden">
+            <ProductImages images={product.images} />
+          </div>
 
           {/* Cột phải: Thông tin */}
-          <div className="space-y-8 lg:space-y-10">
+          <div className="space-y-8 lg:space-y-10 w-full min-w-0">
             <div>
               <div className="flex flex-wrap items-center gap-2 mb-4">
                 {product.category.parent && (
@@ -93,7 +95,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                   </span>
                 )}
               </div>
-              <h1 className="text-3xl lg:text-5xl font-bold text-dark font-serif leading-tight mb-4 lg:mb-6">
+              <h1 className="text-2xl lg:text-5xl font-bold text-dark font-serif leading-tight mb-4 lg:mb-6 break-words overflow-hidden">
                 {product.name}
               </h1>
               
@@ -122,15 +124,15 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
             </div>
 
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3 lg:gap-4 pt-2">
+            <div className="flex flex-row gap-2 lg:gap-4 pt-2">
               <a 
                 href={zaloLink}
                 target="_blank"
-                className="flex-1 bg-primary text-white px-8 py-4 lg:py-5 rounded-2xl font-bold flex items-center justify-center gap-3 shadow-xl shadow-primary/20 hover:bg-blue-600 transition-all active:scale-95"
+                className="flex-1 bg-primary text-white px-3 lg:px-8 py-3.5 lg:py-4 rounded-xl lg:rounded-2xl font-bold flex items-center justify-center gap-2 lg:gap-3 shadow-xl shadow-primary/20 hover:bg-blue-600 transition-all active:scale-95 text-[10px] sm:text-xs lg:text-base whitespace-nowrap"
               >
-                <MessageSquare className="w-5 h-5 lg:w-6 lg:h-6" /> Tư vấn qua Zalo
+                <MessageSquare className="w-4 h-4 lg:w-6 lg:h-6" /> <span className="hidden xs:inline">Tư vấn</span> Zalo
               </a>
-              <button className="flex-1 border-2 border-dark text-dark px-8 py-4 lg:py-5 rounded-2xl font-bold hover:bg-dark hover:text-white transition-all active:scale-95">
+              <button className="flex-1 border-2 border-dark text-dark px-3 lg:px-8 py-3.5 lg:py-4 rounded-xl lg:rounded-2xl font-bold hover:bg-dark hover:text-white transition-all active:scale-95 text-[10px] sm:text-xs lg:text-base whitespace-nowrap">
                 Mua ngay
               </button>
             </div>
