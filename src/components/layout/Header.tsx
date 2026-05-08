@@ -1,9 +1,9 @@
 import Link from "next/link";
-import { Palette, MessageCircle } from "lucide-react";
+import { Palette, MessageCircle, PhoneCall } from "lucide-react";
 import { getPublicSettings } from "@/lib/settings";
 
 export default async function Header() {
-  const { zaloPhone } = await getPublicSettings();
+  const { zaloPhone, hotlinePhone } = await getPublicSettings();
   
   return (
     <header className="glass-header sticky top-0 z-40">
@@ -36,6 +36,13 @@ export default async function Header() {
 
         {/* Call to action */}
         <div className="flex items-center gap-2 lg:gap-4">
+          <a
+            href={`tel:${hotlinePhone}`}
+            className="hidden sm:flex items-center gap-2 text-dark font-bold text-xs hover:text-primary transition-colors"
+          >
+            <PhoneCall className="w-3.5 h-3.5" />
+            <span>{hotlinePhone}</span>
+          </a>
           <a
             href={`https://zalo.me/${zaloPhone}`}
             target="_blank"

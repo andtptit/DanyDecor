@@ -3,7 +3,7 @@ import { Palette, Share2, MessageCircle, Phone, MapPin } from "lucide-react";
 import { getPublicSettings } from "@/lib/settings";
 
 export default async function Footer() {
-  const { zaloPhone, messengerUrl, shopAddress } = await getPublicSettings();
+  const { zaloPhone, hotlinePhone, messengerUrl, shopAddress } = await getPublicSettings();
 
   return (
     <footer className="bg-dark text-white pt-20 pb-10">
@@ -78,14 +78,14 @@ export default async function Footer() {
               </li>
               <li className="flex items-center gap-4">
                 <Phone className="w-5 h-5 text-primary flex-shrink-0" />
-                <a href={`tel:${zaloPhone}`} className="text-gray-400 hover:text-white transition-colors text-sm">
-                  {zaloPhone}
+                <a href={`tel:${hotlinePhone}`} className="text-gray-400 hover:text-white transition-colors text-sm">
+                  {hotlinePhone} (Hotline)
                 </a>
               </li>
               <li className="flex items-center gap-4">
                 <MessageCircle className="w-5 h-5 text-primary flex-shrink-0" />
                 <a href={`https://zalo.me/${zaloPhone}`} className="text-gray-400 hover:text-white transition-colors text-sm">
-                  Tư vấn Zalo 24/7
+                  {zaloPhone} (Zalo 24/7)
                 </a>
               </li>
             </ul>

@@ -5,6 +5,7 @@ import { ArrowLeft } from 'lucide-react'
 import ImageUploader from '@/components/admin/ImageUploader'
 import RichTextEditor from '@/components/admin/RichTextEditor'
 import CategorySubCategorySelect from '@/components/admin/CategorySubCategorySelect'
+import ProductSizeInput from '@/components/admin/ProductSizeInput'
 
 export default async function CreateProductPage() {
   const categories = await prisma.category.findMany({
@@ -26,17 +27,30 @@ export default async function CreateProductPage() {
     const imagesStr = formData.get('images') as string
     const images = imagesStr ? imagesStr.split(',').map(s => s.trim()).filter(Boolean) : []
 
-    if (name && price && categoryId) {
+    const sizesJSON = formData.get('sizesJSON') as string
+    const sizes = sizesJSON ? JSON.parse(sizesJSON) : []
+    
+    // Find base price (lowest valid price from sizes)
+    const validPrices = sizes.filter((s: any) => s.price !== null).map((s: any) => s.price)
+    const basePrice = validPrices.length > 0 ? Math.min(...validPrices) : 0
+
+    if (name && categoryId) {
       await prisma.product.create({
         data: {
           name,
           slug,
-          price,
+          price: basePrice, // Store the lowest price as the base price
           originalPrice,
           description,
           categoryId,
           isFeatured,
-          images
+          images,
+          sizes: {
+            create: sizes.map((s: any) => ({
+              name: s.name,
+              price: s.price
+            }))
+          }
         }
       })
       redirect('/admin/products')
@@ -64,13 +78,13 @@ export default async function CreateProductPage() {
             <CategorySubCategorySelect categories={categories} />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-bold text-dark mb-2">Giá bán (VNĐ) *</label>
-                <input name="price" required type="number" min="0" className="w-full bg-soft-gray border-none rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="VD: 500000" />
+              <div className="md:col-span-2">
+                <label className="block text-sm font-bold text-dark mb-2">Kích thước và Giá bán (VNĐ) *</label>
+                <ProductSizeInput />
               </div>
               <div>
-                <label className="block text-sm font-bold text-dark mb-2">Giá gốc (VNĐ)</label>
-                <input name="originalPrice" type="number" min="0" className="w-full bg-soft-gray border-none rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="Chỉ điền nếu có giảm giá" />
+                <label className="block text-sm font-bold text-dark mb-2">Giá gốc (VNĐ) (Tùy chọn - Dùng chung)</label>
+                <input name="originalPrice" type="number" min="0" className="w-full bg-soft-gray border-none rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="Chỉ điền nếu có giảm giá (bị gạch ngang)" />
               </div>
             </div>
           </div>

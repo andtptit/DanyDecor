@@ -7,6 +7,7 @@ import { updateSettings } from "./actions"
 interface SettingsFormProps {
   initialData: {
     zalo_phone: string
+    hotline_phone: string
     messenger_url: string
     shop_address: string
   }
@@ -53,6 +54,16 @@ export default function SettingsForm({ initialData }: SettingsFormProps) {
               name="zalo_phone"
               type="text" 
               defaultValue={initialData.zalo_phone}
+              placeholder="09xx xxx xxx"
+              className="w-full bg-soft-gray border-none rounded-xl px-5 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-bold text-dark mb-2">Số điện thoại Gọi điện (Hotline)</label>
+            <input 
+              name="hotline_phone"
+              type="text" 
+              defaultValue={initialData.hotline_phone}
               placeholder="09xx xxx xxx"
               className="w-full bg-soft-gray border-none rounded-xl px-5 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
             />

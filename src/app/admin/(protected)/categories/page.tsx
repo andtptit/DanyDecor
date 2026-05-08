@@ -2,6 +2,7 @@ import prisma from '@/lib/prisma'
 import { Edit, Trash, ChevronRight, CornerDownRight } from 'lucide-react'
 import { revalidatePath } from 'next/cache'
 import Link from 'next/link'
+import ImageUploader from '@/components/admin/ImageUploader'
 
 export const dynamic = 'force-dynamic'
 
@@ -37,13 +38,18 @@ export default async function CategoriesAdminPage() {
     // Auto-generate slug from name
     const slug = name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)+/g, "")
     
+    // Get image
+    const imagesStr = formData.get('image') as string
+    const image = imagesStr ? imagesStr.split(',')[0].trim() : null // Chỉ lấy ảnh đầu tiên
+    
     if (name) {
       await prisma.category.create({
         data: { 
           name, 
           slug, 
           description, 
-          parentId: parentId || null 
+          parentId: parentId || null,
+          image
         }
       })
       revalidatePath('/admin/categories')
@@ -79,6 +85,10 @@ export default async function CategoriesAdminPage() {
                   <option key={cat.id} value={cat.id}>{cat.name}</option>
                 ))}
               </select>
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-dark mb-2">Ảnh danh mục (Chỉ dành cho danh mục gốc hiển thị ở trang chủ)</label>
+              <ImageUploader name="image" maxImages={1} />
             </div>
             <div>
               <label className="block text-sm font-bold text-dark mb-2">Mô tả</label>

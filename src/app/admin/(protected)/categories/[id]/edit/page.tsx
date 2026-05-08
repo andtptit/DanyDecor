@@ -3,6 +3,7 @@ import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import { revalidatePath } from 'next/cache'
+import ImageUploader from '@/components/admin/ImageUploader'
 
 export default async function EditCategoryPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -24,6 +25,10 @@ export default async function EditCategoryPage({ params }: { params: Promise<{ i
     const parentId = formData.get('parentId') as string
     const slug = name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)+/g, "")
 
+    // Get image
+    const imagesStr = formData.get('image') as string
+    const image = imagesStr ? imagesStr.split(',')[0].trim() : null
+
     if (name) {
       await prisma.category.update({
         where: { id },
@@ -31,7 +36,8 @@ export default async function EditCategoryPage({ params }: { params: Promise<{ i
           name, 
           slug, 
           description,
-          parentId: parentId || null // If empty, it becomes a root category
+          parentId: parentId || null, // If empty, it becomes a root category
+          image
         }
       })
       revalidatePath('/admin/categories')
@@ -69,6 +75,11 @@ export default async function EditCategoryPage({ params }: { params: Promise<{ i
               ))}
             </select>
             <p className="text-[10px] text-gray-400 mt-1">Chọn danh mục cha để biến danh mục này thành danh mục con, hoặc chọn gốc để đưa nó về cấp cao nhất.</p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-bold text-dark mb-2">Ảnh danh mục (Chỉ dành cho danh mục gốc hiển thị ở trang chủ)</label>
+            <ImageUploader name="image" maxImages={1} defaultImages={category.image ? [category.image] : []} />
           </div>
 
           <div>

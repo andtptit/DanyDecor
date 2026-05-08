@@ -9,6 +9,7 @@ export default async function SettingsPage() {
   
   const initialData = {
     zalo_phone: settingsData.find(s => s.key === 'NEXT_PUBLIC_ZALO_PHONE')?.value || process.env.NEXT_PUBLIC_ZALO_PHONE || '',
+    hotline_phone: settingsData.find(s => s.key === 'HOTLINE_PHONE')?.value || process.env.HOTLINE_PHONE || '',
     messenger_url: settingsData.find(s => s.key === 'NEXT_PUBLIC_MESSENGER_URL')?.value || process.env.NEXT_PUBLIC_MESSENGER_URL || '',
     shop_address: settingsData.find(s => s.key === 'SHOP_ADDRESS')?.value || '',
   };

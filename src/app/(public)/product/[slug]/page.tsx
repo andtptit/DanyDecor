@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { MessageSquare, ShieldCheck, Zap, ChevronRight, Home as HomeIcon } from "lucide-react";
 import Link from "next/link";
 import ProductImages from "@/components/ProductImages";
+import ProductOptions from "@/components/ProductOptions";
 import { getPublicSettings } from "@/lib/settings";
 
 export const revalidate = 60;
@@ -22,7 +23,8 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     include: { 
       category: {
         include: { parent: true }
-      }
+      },
+      sizes: true
     }
   });
 
@@ -101,16 +103,14 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                 {product.name}
               </h1>
               
-              <div className="flex items-baseline gap-4">
-                <span className="text-2xl lg:text-3xl font-bold text-primary">
-                  {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.price)}
-                </span>
-                {product.originalPrice && (
-                  <span className="text-base lg:text-lg text-gray-300 line-through">
-                    {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.originalPrice)}
-                  </span>
-                )}
-              </div>
+              {/* Product Options (Size & Price & CTA) */}
+              <ProductOptions 
+                productName={product.name}
+                sizes={product.sizes} 
+                defaultPrice={product.price} 
+                originalPrice={product.originalPrice} 
+                zaloLink={zaloLink} 
+              />
             </div>
 
             {/* Đặc điểm nổi bật */}
@@ -124,22 +124,6 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                 <span className="text-[10px] lg:text-xs font-bold text-dark uppercase tracking-wide">Giao nhanh 2h</span>
               </div>
             </div>
-
-            {/* CTA Buttons */}
-            <div className="flex flex-row gap-2 lg:gap-4 pt-2">
-              <a 
-                href={zaloLink}
-                target="_blank"
-                className="flex-1 bg-primary text-white px-3 lg:px-8 py-3.5 lg:py-4 rounded-xl lg:rounded-2xl font-bold flex items-center justify-center gap-2 lg:gap-3 shadow-xl shadow-primary/20 hover:bg-blue-600 transition-all active:scale-95 text-[10px] sm:text-xs lg:text-base whitespace-nowrap"
-              >
-                <MessageSquare className="w-4 h-4 lg:w-6 lg:h-6" /> <span className="hidden xs:inline">Tư vấn</span> Zalo
-              </a>
-              <button className="flex-1 border-2 border-dark text-dark px-3 lg:px-8 py-3.5 lg:py-4 rounded-xl lg:rounded-2xl font-bold hover:bg-dark hover:text-white transition-all active:scale-95 text-[10px] sm:text-xs lg:text-base whitespace-nowrap">
-                Mua ngay
-              </button>
-            </div>
-
-            {/* Mô tả chi tiết */}
             <div className="pt-8 lg:pt-10 border-t border-gray-100">
               <h3 className="font-bold text-dark mb-4 lg:mb-6 flex items-center gap-2">
                 <span className="w-1 h-5 bg-primary rounded-full"></span>
