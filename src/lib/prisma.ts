@@ -12,7 +12,8 @@ const prismaClientSingleton = () => {
     connectionString,
     max: process.env.NODE_ENV === 'production' ? 10 : 20,
     idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 2000,
+    connectionTimeoutMillis: 5000,
+    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
   })
   const adapter = new PrismaPg(pool)
   return new PrismaClient({ adapter })
