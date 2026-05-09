@@ -39,3 +39,26 @@ export async function updateSettings(formData: FormData) {
     return { success: false, error: 'Không thể lưu cấu hình' }
   }
 }
+
+export async function scanStorageAction() {
+  try {
+    const { scanOrphanedImages } = await import("@/lib/storage");
+    const orphanedFiles = await scanOrphanedImages();
+    return { success: true, files: orphanedFiles };
+  } catch (error) {
+    console.error('Scan storage error:', error);
+    return { success: false, error: 'Có lỗi xảy ra khi quét kho ảnh' };
+  }
+}
+
+export async function deleteFilesAction(files: { bucket: string; name: string }[]) {
+  try {
+    const { deleteSelectedFiles } = await import("@/lib/storage");
+    const deletedCount = await deleteSelectedFiles(files);
+    revalidatePath('/admin/settings');
+    return { success: true, deletedCount };
+  } catch (error) {
+    console.error('Delete files error:', error);
+    return { success: false, error: 'Có lỗi xảy ra khi xóa file' };
+  }
+}

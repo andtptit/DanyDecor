@@ -1,8 +1,9 @@
 'use client'
 
 import { useState } from "react"
-import { Save, Phone } from "lucide-react"
-import { updateSettings } from "./actions"
+import { Save, Phone, Trash2, RefreshCw, AlertTriangle, CheckCircle2 } from "lucide-react"
+import { updateSettings, scanStorageAction, deleteFilesAction } from "./actions"
+import LoadingScreen from "@/components/admin/LoadingScreen"
 
 interface SettingsFormProps {
   initialData: {
@@ -19,6 +20,9 @@ export default function SettingsForm({ initialData }: SettingsFormProps) {
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
 
+  const [cleanupLoading, setCleanupLoading] = useState(false)
+  const [orphanedFiles, setOrphanedFiles] = useState<{ bucket: string; name: string; fullPath: string }[]>([])
+
   async function handleSubmit(formData: FormData) {
     setLoading(true)
     setMessage(null)
@@ -32,6 +36,48 @@ export default function SettingsForm({ initialData }: SettingsFormProps) {
     }
     
     setLoading(false)
+  }
+
+  async function handleScan() {
+    setCleanupLoading(true)
+    setMessage(null)
+    setOrphanedFiles([])
+    
+    try {
+      const result = await scanStorageAction() as any
+      if (result.success) {
+        setOrphanedFiles(result.files)
+        if (result.files.length === 0) {
+          setMessage({ type: 'success', text: 'Tuyệt vời! Không tìm thấy ảnh rác nào.' })
+        }
+      } else {
+        setMessage({ type: 'error', text: result.error || 'Có lỗi xảy ra khi quét' })
+      }
+    } catch (error) {
+      setMessage({ type: 'error', text: 'Lỗi kết nối server' })
+    } finally {
+      setCleanupLoading(false)
+    }
+  }
+
+  async function handleDeleteSelected() {
+    if (orphanedFiles.length === 0) return;
+    if (!window.confirm(`Bạn có chắc chắn muốn xóa vĩnh viễn ${orphanedFiles.length} file này không?`)) return;
+
+    setCleanupLoading(true)
+    try {
+      const result = await deleteFilesAction(orphanedFiles) as any
+      if (result.success) {
+        setMessage({ type: 'success', text: `Đã dọn dẹp thành công ${result.deletedCount} file!` })
+        setOrphanedFiles([])
+      } else {
+        setMessage({ type: 'error', text: result.error || 'Lỗi khi xóa file' })
+      }
+    } catch (error) {
+      setMessage({ type: 'error', text: 'Lỗi kết nối server' })
+    } finally {
+      setCleanupLoading(false)
+    }
   }
 
   return (
@@ -130,6 +176,70 @@ export default function SettingsForm({ initialData }: SettingsFormProps) {
           {loading ? 'Đang lưu...' : 'Lưu cấu hình'}
         </button>
       </form>
+
+      {/* Maintenance Section */}
+      <div className="mt-12 pt-8 border-t border-gray-100">
+        <h2 className="text-xl font-bold text-dark mb-2 flex items-center gap-3">
+          <Trash2 className="w-5 h-5 text-red-500" /> Bảo trì hệ thống
+        </h2>
+        <p className="text-sm text-gray-500 mb-6 italic">Dọn dẹp các file ảnh mồ côi trên Supabase Storage để tiết kiệm dung lượng và tăng tốc độ hệ thống.</p>
+        
+        <div className="bg-red-50/50 p-6 rounded-[2rem] border border-red-100/50 flex flex-col items-center justify-between gap-6">
+          <div className="w-full">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-6 p-2">
+              <div className="flex-1">
+                <h3 className="font-bold text-red-900 mb-1">Quét và dọn dẹp kho ảnh</h3>
+                <p className="text-xs text-red-600/70 leading-relaxed">Hệ thống sẽ đối chiếu toàn bộ file trong Storage với dữ liệu. Bạn có thể xem danh sách trước khi xóa.</p>
+              </div>
+              <button 
+                onClick={handleScan}
+                disabled={cleanupLoading}
+                className="flex items-center gap-2 bg-white text-red-600 border border-red-200 px-6 py-3 rounded-xl font-bold text-sm hover:bg-red-600 hover:text-white transition-all shadow-sm disabled:opacity-50"
+              >
+                {cleanupLoading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+                {cleanupLoading ? 'Đang quét...' : 'Quét rác ngay'}
+              </button>
+            </div>
+
+            {/* List of orphaned files */}
+            {orphanedFiles.length > 0 && (
+              <div className="mt-6 bg-white rounded-2xl border border-red-100 overflow-hidden animate-in fade-in slide-in-from-top-4 duration-500">
+                <div className="bg-red-50 px-6 py-3 border-b border-red-100 flex items-center justify-between">
+                  <span className="text-xs font-bold text-red-700 flex items-center gap-2">
+                    <AlertTriangle className="w-4 h-4" /> Tìm thấy {orphanedFiles.length} file không sử dụng
+                  </span>
+                  <button 
+                    onClick={handleDeleteSelected}
+                    className="text-[10px] font-bold uppercase tracking-widest bg-red-600 text-white px-4 py-1.5 rounded-lg hover:bg-red-700 transition-colors"
+                  >
+                    Xác nhận xóa tất cả
+                  </button>
+                </div>
+                <div className="max-h-60 overflow-y-auto">
+                  <table className="w-full text-left text-[11px]">
+                    <thead className="bg-gray-50 text-gray-400 uppercase font-bold sticky top-0">
+                      <tr>
+                        <th className="px-6 py-2">Thư mục</th>
+                        <th className="px-6 py-2">Tên file</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-50">
+                      {orphanedFiles.map((file, idx) => (
+                        <tr key={idx} className="hover:bg-gray-50/50">
+                          <td className="px-6 py-2 text-gray-500 font-medium">{file.bucket}</td>
+                          <td className="px-6 py-2 text-dark truncate max-w-[200px]">{file.name}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {cleanupLoading && <LoadingScreen message="Đang xử lý dữ liệu kho ảnh..." />}
     </div>
   )
 }

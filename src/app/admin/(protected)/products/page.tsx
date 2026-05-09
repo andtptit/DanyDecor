@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import DeleteProductButton from "@/components/admin/DeleteProductButton";
 import ProductFilter from "@/components/admin/ProductFilter";
 import AdminBreadcrumb from "@/components/admin/AdminBreadcrumb";
+import { deleteImagesFromStorage } from "@/lib/storage";
 
 export const dynamic = 'force-dynamic';
 
@@ -42,6 +43,18 @@ export default async function ProductsAdminPage({
     if (!id) return { success: false, error: 'Thiếu ID sản phẩm' }
 
     try {
+      // 1. Tìm sản phẩm để lấy danh sách ảnh
+      const product = await prisma.product.findUnique({
+        where: { id },
+        select: { images: true }
+      });
+
+      if (product && product.images && product.images.length > 0) {
+        // 2. Xóa ảnh khỏi Storage
+        await deleteImagesFromStorage(product.images);
+      }
+
+      // 3. Xóa sản phẩm khỏi DB
       await prisma.product.delete({ where: { id } })
       revalidatePath('/admin/products')
       return { success: true }

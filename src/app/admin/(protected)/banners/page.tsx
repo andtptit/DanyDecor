@@ -2,6 +2,8 @@ import prisma from '@/lib/prisma'
 import { revalidatePath } from 'next/cache'
 import { Trash, ToggleLeft, ToggleRight, ImageIcon } from 'lucide-react'
 import ImageUploader from '@/components/admin/ImageUploader'
+import { deleteImagesFromStorage } from '@/lib/storage'
+import ConfirmSubmitForm from '@/components/admin/ConfirmSubmitForm'
 
 export const dynamic = 'force-dynamic';
 
@@ -37,6 +39,18 @@ export default async function BannersAdminPage() {
     'use server'
     const id = formData.get('id') as string
     if (id) {
+      // 1. Lấy thông tin banner
+      const banner = await prisma.banner.findUnique({
+        where: { id },
+        select: { image: true }
+      });
+
+      if (banner && banner.image) {
+        // 2. Xóa ảnh khỏi Storage
+        await deleteImagesFromStorage(banner.image);
+      }
+
+      // 3. Xóa bản ghi
       await prisma.banner.delete({ where: { id } })
       revalidatePath('/admin/banners')
     }
@@ -150,7 +164,7 @@ export default async function BannersAdminPage() {
                         </form>
 
                         {/* Delete */}
-                        <form action={deleteBanner}>
+                        <ConfirmSubmitForm action={deleteBanner} message="Bạn có chắc chắn muốn xóa banner này không?">
                           <input type="hidden" name="id" value={banner.id} />
                           <button
                             type="submit"
@@ -159,7 +173,7 @@ export default async function BannersAdminPage() {
                           >
                             <Trash className="w-4 h-4" />
                           </button>
-                        </form>
+                        </ConfirmSubmitForm>
                       </div>
                     </div>
                   </div>

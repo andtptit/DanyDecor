@@ -6,6 +6,7 @@ import ImageUploader from '@/components/admin/ImageUploader'
 import ConfirmSubmitForm from '@/components/admin/ConfirmSubmitForm'
 import DeleteCategoryButton from '@/components/admin/DeleteCategoryButton'
 import AdminBreadcrumb from '@/components/admin/AdminBreadcrumb'
+import { deleteImagesFromStorage } from '@/lib/storage'
 
 export const dynamic = 'force-dynamic'
 
@@ -54,6 +55,17 @@ export default async function CategoriesAdminPage() {
       }
 
       // 3. Nếu mọi thứ ổn, tiến hành xóa
+      // 3a. Lấy thông tin ảnh trước khi xóa bản ghi
+      const category = await prisma.category.findUnique({
+        where: { id },
+        select: { image: true }
+      });
+
+      if (category && category.image) {
+        await deleteImagesFromStorage(category.image);
+      }
+
+      // 3b. Xóa bản ghi trong DB
       await prisma.category.delete({ where: { id } })
       revalidatePath('/admin/categories')
       return { success: true }
