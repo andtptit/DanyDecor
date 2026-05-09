@@ -78,8 +78,8 @@ export default async function EditCategoryPage({ params }: { params: Promise<{ i
           </div>
 
           <div>
-            <label className="block text-sm font-bold text-dark mb-2">Ảnh danh mục (Chỉ dành cho danh mục gốc hiển thị ở trang chủ)</label>
-            <ImageUploader name="image" maxImages={1} defaultImages={category.image ? [category.image] : []} />
+            <label className="block text-sm font-bold text-dark mb-2">Ảnh danh mục (Chỉ dành cho danh mục cha, hiển thị ở trang chủ)</label>
+            <ImageUploader name="image" maxImages={1} initialImages={category.image ? [category.image] : []} />
           </div>
 
           <div>
