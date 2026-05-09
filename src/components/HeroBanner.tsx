@@ -2,6 +2,7 @@
 
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, EffectFade } from "swiper/modules";
+import Image from "next/image";
 import "swiper/css";
 import "swiper/css/effect-fade";
 
@@ -16,10 +17,13 @@ export default function HeroBanner({ banners }: { banners: Banner[] }) {
 
   if (!banners || banners.length === 0) {
     return (
-      <div className="aspect-square rounded-[3rem] overflow-hidden rotate-3 hover:rotate-0 transition-transform duration-700 shadow-2xl border-[12px] border-white bg-white">
-        <img
+      <div className="aspect-square rounded-[3rem] overflow-hidden rotate-3 hover:rotate-0 transition-transform duration-700 shadow-2xl border-[12px] border-white bg-white relative">
+        <Image
           src={defaultImage}
           alt="Hero Image Default"
+          fill
+          priority
+          sizes="(max-width: 1024px) 100vw, 50vw"
           className="w-full h-full object-cover"
         />
       </div>
@@ -35,22 +39,30 @@ export default function HeroBanner({ banners }: { banners: Banner[] }) {
         loop={banners.length > 1}
         className="w-full h-full"
       >
-        {banners.map((banner) => (
+        {banners.map((banner, index) => (
           <SwiperSlide key={banner.id}>
             {banner.link ? (
-              <a href={banner.link} className="block w-full h-full">
-                <img
+              <a href={banner.link} className="block w-full h-full relative">
+                <Image
                   src={banner.image}
                   alt="Banner Image"
+                  fill
+                  priority={index === 0}
+                  sizes="(max-width: 1024px) 100vw, 50vw"
                   className="w-full h-full object-cover"
                 />
               </a>
             ) : (
-              <img
-                src={banner.image}
-                alt="Banner Image"
-                className="w-full h-full object-cover"
-              />
+              <div className="w-full h-full relative">
+                <Image
+                  src={banner.image}
+                  alt="Banner Image"
+                  fill
+                  priority={index === 0}
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  className="w-full h-full object-cover"
+                />
+              </div>
             )}
           </SwiperSlide>
         ))}

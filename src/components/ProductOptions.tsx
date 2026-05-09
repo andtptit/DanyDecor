@@ -33,6 +33,7 @@ export default function ProductOptions({ productName, sizes, defaultPrice, origi
 
   const selectedSize = effectiveSizes.find(s => s.id === selectedSizeId);
   const currentPrice = selectedSize ? selectedSize.price : defaultPrice;
+  const currentOriginalPrice = selectedSize ? (selectedSize as any).originalPrice : originalPrice;
 
   const getZaloBuyLink = () => {
     const sizeText = selectedSize ? selectedSize.name : "Kích thước mặc định";
@@ -58,9 +59,9 @@ export default function ProductOptions({ productName, sizes, defaultPrice, origi
             {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(currentPrice)}
           </span>
         )}
-        {originalPrice && currentPrice !== null && (
+        {currentOriginalPrice && currentPrice !== null && currentOriginalPrice > currentPrice && (
           <span className="text-base lg:text-lg text-gray-300 line-through">
-            {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(originalPrice)}
+            {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(currentOriginalPrice)}
           </span>
         )}
       </div>

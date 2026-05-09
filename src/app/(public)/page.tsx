@@ -1,4 +1,5 @@
 import { ArrowRight, MessageSquare, Star, Award } from "lucide-react";
+import Image from "next/image";
 import prisma from "@/lib/prisma";
 import ChatAssistant from "@/components/ChatAssistant";
 import HeroBanner from "@/components/HeroBanner";
@@ -19,7 +20,12 @@ export default async function Home() {
       where: { isFeatured: true },
       take: 6,
       orderBy: { createdAt: "desc" },
-      include: { category: true }
+      include: { 
+        category: true,
+        sizes: {
+          orderBy: { price: 'asc' }
+        }
+      }
     }).catch((e) => { console.error("Product fetch error:", e); return []; }),
     prisma.category.findMany({
       where: { parentId: null }, // Chỉ lấy các danh mục gốc
@@ -108,9 +114,11 @@ export default async function Home() {
                 className={`group relative overflow-hidden rounded-[2.5rem] aspect-[3/4] shadow-lg transition-all duration-700 hover:shadow-2xl hover:-translate-y-2 ${categoryCount > 2 && index % 2 !== 0 ? 'lg:translate-y-8' : ''}`}
               >
                 {/* Background Image */}
-                <img 
+                <Image 
                   src={cat.image || `https://images.unsplash.com/photo-1513519245088-0e12902e5a38?q=80&w=800&auto=format&fit=crop&sig=${index}`} 
                   alt={cat.name}
+                  fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
                 />
                 
@@ -164,47 +172,58 @@ export default async function Home() {
           {/* Lưới sản phẩm từ Database */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
             {featuredProducts.length > 0 ? (
-              featuredProducts.map((product: any) => (
-                <div key={product.id} className="product-card bg-white rounded-3xl overflow-hidden flex flex-col group border border-gray-50 hover:shadow-2xl transition-all duration-500">
-                  <Link href={`/product/${product.slug}`} className="relative aspect-[4/3] overflow-hidden block">
-                    <img
-                      src={product.images[0] || "https://images.unsplash.com/photo-1544457070-4cd773b4d71e?q=80&w=800&auto=format&fit=crop"}
-                      alt={product.name}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                    />
-                    <div className="absolute top-4 left-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">
-                      {product.category?.name || "Bộ sưu tập"}
-                    </div>
-                  </Link>
-                  <div className="p-8 flex flex-col flex-grow">
-                    <Link href={`/product/${product.slug}`}>
-                        <h3 className="text-xl font-bold mb-3 text-dark group-hover:text-primary transition-colors line-clamp-1">
-                        {product.name}
-                        </h3>
-                    </Link>
-                    <div className="text-gray-500 text-sm mb-6 leading-relaxed line-clamp-2" dangerouslySetInnerHTML={{ __html: product.description || "" }} />
-                    <div className="mt-auto flex items-center justify-between pt-6 border-t border-gray-50">
-                      <div className="flex flex-col">
-                        <span className="text-xl font-bold text-primary">
-                          {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.price)}
-                        </span>
-                        {product.originalPrice && (
-                          <span className="text-xs text-gray-400 line-through">
-                            {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.originalPrice)}
-                          </span>
-                        )}
+              featuredProducts.map((product: any) => {
+                const firstSize = product.sizes && product.sizes.length > 0 ? product.sizes[0] : null;
+                const displayPrice = firstSize ? firstSize.price ?? product.price : product.price;
+                const displayOriginalPrice = firstSize ? firstSize.originalPrice : product.originalPrice;
+
+                return (
+                  <div key={product.id} className="product-card bg-white rounded-3xl overflow-hidden flex flex-col group border border-gray-50 hover:shadow-2xl transition-all duration-500">
+                    <Link href={`/product/${product.slug}`} className="relative aspect-[4/3] overflow-hidden block">
+                      <Image
+                        src={product.images[0] || "https://images.unsplash.com/photo-1544457070-4cd773b4d71e?q=80&w=800&auto=format&fit=crop"}
+                        alt={product.name}
+                        fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      />
+                      <div className="absolute top-4 left-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">
+                        {product.category?.name || "Bộ sưu tập"}
                       </div>
-                      <a
-                        href={`https://zalo.me/${zaloPhone}`}
-                        target="_blank"
-                        className="flex items-center gap-2 bg-soft-gray text-dark px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-primary hover:text-white transition-all"
-                      >
-                        <MessageSquare className="w-4 h-4" /> Tư vấn
-                      </a>
+                    </Link>
+                    <div className="p-8 flex flex-col flex-grow">
+                      <Link href={`/product/${product.slug}`}>
+                          <h3 className="text-xl font-bold mb-3 text-dark group-hover:text-primary transition-colors line-clamp-1">
+                          {product.name}
+                          </h3>
+                      </Link>
+                      <div className="text-gray-500 text-sm mb-6 leading-relaxed line-clamp-2" dangerouslySetInnerHTML={{ __html: product.description || "" }} />
+                      <div className="mt-auto flex items-center justify-between pt-6 border-t border-gray-50">
+                        <div className="flex flex-col">
+                          <span className="text-xl font-bold text-primary">
+                            {displayPrice > 0 
+                              ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(displayPrice)
+                              : "Liên hệ"
+                            }
+                          </span>
+                          {displayOriginalPrice && displayOriginalPrice > (displayPrice || 0) && (
+                            <span className="text-xs text-gray-400 line-through">
+                              {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(displayOriginalPrice)}
+                            </span>
+                          )}
+                        </div>
+                        <a
+                          href={`https://zalo.me/${zaloPhone}`}
+                          target="_blank"
+                          className="flex items-center gap-2 bg-soft-gray text-dark px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-primary hover:text-white transition-all"
+                        >
+                          <MessageSquare className="w-4 h-4" /> Tư vấn
+                        </a>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))
+                );
+              })
             ) : (
               <div className="col-span-full text-center py-20 text-gray-400">
                 Chưa có sản phẩm nổi bật nào được hiển thị.

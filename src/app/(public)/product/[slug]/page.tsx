@@ -1,4 +1,5 @@
 import prisma from "@/lib/prisma";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { MessageSquare, ShieldCheck, Zap, ChevronRight, Home as HomeIcon } from "lucide-react";
 import Link from "next/link";
@@ -16,7 +17,7 @@ interface ProductPageProps {
 
 export default async function ProductDetailPage({ params }: ProductPageProps) {
   const { slug } = await params;
-  const { zaloPhone } = await getPublicSettings();
+  const { zaloPhone, highlight1Text, highlight2Text } = await getPublicSettings();
 
   const product = await prisma.product.findUnique({
     where: { slug },
@@ -32,12 +33,13 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
 
   // Lấy các sản phẩm liên quan (cùng danh mục hoặc cùng cha)
   const relatedProducts = await prisma.product.findMany({
-    where: {
-      OR: [
-        { categoryId: product.categoryId },
-        { category: { parentId: product.category.parentId || product.categoryId } }
-      ],
-      id: { not: product.id }
+    include: { 
+      category: {
+        include: { parent: true }
+      },
+      sizes: {
+        orderBy: { price: 'asc' }
+      }
     },
     take: 4,
     orderBy: { createdAt: 'desc' }
@@ -107,7 +109,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
               <ProductOptions 
                 productName={product.name}
                 sizes={product.sizes} 
-                defaultPrice={product.price} 
+                defaultPrice={product.price || 0} 
                 originalPrice={product.originalPrice} 
                 zaloLink={zaloLink} 
               />
@@ -117,11 +119,15 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
             <div className="grid grid-cols-2 gap-3 lg:gap-4">
               <div className="flex items-center gap-2 lg:gap-3 p-3 lg:p-4 rounded-2xl border border-gray-100 bg-soft-gray/20">
                 <ShieldCheck className="w-4 h-4 lg:w-5 lg:h-5 text-green-500" />
-                <span className="text-[10px] lg:text-xs font-bold text-dark uppercase tracking-wide">Bảo hành 2 năm</span>
+                <span className="text-[10px] lg:text-xs font-bold text-dark uppercase tracking-wide">
+                  {highlight1Text}
+                </span>
               </div>
               <div className="flex items-center gap-2 lg:gap-3 p-3 lg:p-4 rounded-2xl border border-gray-100 bg-soft-gray/20">
                 <Zap className="w-4 h-4 lg:w-5 lg:h-5 text-amber-500" />
-                <span className="text-[10px] lg:text-xs font-bold text-dark uppercase tracking-wide">Giao nhanh 2h</span>
+                <span className="text-[10px] lg:text-xs font-bold text-dark uppercase tracking-wide">
+                  {highlight2Text}
+                </span>
               </div>
             </div>
             <div className="pt-8 lg:pt-10 border-t border-gray-100">
@@ -145,23 +151,41 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
               <div className="w-12 h-1 bg-primary mx-auto"></div>
             </div>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-8">
-              {relatedProducts.map((p: any) => (
-                <Link key={p.id} href={`/product/${p.slug}`} className="group space-y-3 lg:space-y-4">
-                  <div className="aspect-[4/3] rounded-2xl lg:rounded-[2rem] overflow-hidden border border-gray-100">
-                    <img 
-                      src={p.images[0]} 
-                      alt={p.name} 
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                    />
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-xs lg:text-sm text-dark group-hover:text-primary transition-colors line-clamp-1">{p.name}</h4>
-                    <p className="text-primary font-bold text-xs lg:text-sm mt-1">
-                      {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(p.price)}
-                    </p>
-                  </div>
-                </Link>
-              ))}
+                {relatedProducts.map((p: any) => {
+                  const firstSize = p.sizes && p.sizes.length > 0 ? p.sizes[0] : null;
+                  const displayPrice = firstSize ? firstSize.price ?? p.price : p.price;
+                  const displayOriginalPrice = firstSize ? firstSize.originalPrice : p.originalPrice;
+                  
+                  return (
+                    <Link key={p.id} href={`/product/${p.slug}`} className="group space-y-3 lg:space-y-4">
+                      <div className="aspect-[4/3] rounded-2xl lg:rounded-[2rem] overflow-hidden border border-gray-100 relative">
+                        <Image 
+                          src={p.images[0]} 
+                          alt={p.name} 
+                          fill
+                          sizes="(max-width: 768px) 50vw, 25vw"
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                        />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-xs lg:text-sm text-dark group-hover:text-primary transition-colors line-clamp-1">{p.name}</h4>
+                        <div className="flex items-center gap-2 mt-1">
+                          <p className="text-primary font-bold text-xs lg:text-sm">
+                            {displayPrice > 0 
+                              ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(displayPrice)
+                              : "Liên hệ"
+                            }
+                          </p>
+                          {displayOriginalPrice && displayOriginalPrice > (displayPrice || 0) && (
+                            <p className="text-[10px] text-gray-300 line-through">
+                              {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(displayOriginalPrice)}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </Link>
+                  );
+                })}
             </div>
           </div>
         )}

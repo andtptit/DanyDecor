@@ -1,8 +1,11 @@
 import prisma from '@/lib/prisma'
-import { Edit, Trash, ChevronRight, CornerDownRight } from 'lucide-react'
+import { Edit, ChevronRight, CornerDownRight } from 'lucide-react'
 import { revalidatePath } from 'next/cache'
 import Link from 'next/link'
 import ImageUploader from '@/components/admin/ImageUploader'
+import ConfirmSubmitForm from '@/components/admin/ConfirmSubmitForm'
+import DeleteCategoryButton from '@/components/admin/DeleteCategoryButton'
+import AdminBreadcrumb from '@/components/admin/AdminBreadcrumb'
 
 export const dynamic = 'force-dynamic'
 
@@ -23,9 +26,40 @@ export default async function CategoriesAdminPage() {
   async function deleteCategory(formData: FormData) {
     'use server'
     const id = formData.get('id') as string
-    if (id) {
+    if (!id) return { success: false, error: 'Thiếu ID danh mục' }
+
+    try {
+      // 1. Kiểm tra xem có danh mục con không
+      const childrenCount = await prisma.category.count({
+        where: { parentId: id }
+      })
+
+      if (childrenCount > 0) {
+        return { 
+          success: false, 
+          error: `Không thể xóa vì danh mục này đang có ${childrenCount} danh mục con. Hãy xóa hoặc chuyển danh mục con trước.` 
+        }
+      }
+
+      // 2. Kiểm tra xem có sản phẩm không
+      const productsCount = await prisma.product.count({
+        where: { categoryId: id }
+      })
+
+      if (productsCount > 0) {
+        return { 
+          success: false, 
+          error: `Không thể xóa vì danh mục đang có ${productsCount} sản phẩm. Hãy chuyển sản phẩm sang danh mục khác trước.` 
+        }
+      }
+
+      // 3. Nếu mọi thứ ổn, tiến hành xóa
       await prisma.category.delete({ where: { id } })
       revalidatePath('/admin/categories')
+      return { success: true }
+    } catch (error) {
+      console.error('Delete category error:', error)
+      return { success: false, error: 'Có lỗi xảy ra khi xóa danh mục' }
     }
   }
 
@@ -58,6 +92,7 @@ export default async function CategoriesAdminPage() {
 
   return (
     <div>
+      <AdminBreadcrumb items={[{ label: 'Quản lý danh mục' }]} />
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-3xl font-bold text-dark font-serif mb-2">Quản Lý Danh Mục</h1>
@@ -69,7 +104,7 @@ export default async function CategoriesAdminPage() {
         {/* Form thêm mới */}
         <div className="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm h-fit">
           <h2 className="text-lg font-bold text-dark mb-4">Thêm danh mục mới</h2>
-          <form action={createCategory} className="space-y-4">
+          <ConfirmSubmitForm action={createCategory} message="Bạn có chắc chắn muốn thêm danh mục này không?" className="space-y-4">
             <div>
               <label className="block text-sm font-bold text-dark mb-2">Tên danh mục *</label>
               <input name="name" required type="text" className="w-full bg-soft-gray border-none rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="VD: Tranh Tráng Gương" />
@@ -97,7 +132,7 @@ export default async function CategoriesAdminPage() {
             <button type="submit" className="w-full bg-primary text-white px-6 py-3 rounded-xl font-bold text-sm hover:bg-blue-600 transition-colors">
               Thêm Mới
             </button>
-          </form>
+          </ConfirmSubmitForm>
         </div>
 
         {/* Danh sách */}
@@ -130,12 +165,11 @@ export default async function CategoriesAdminPage() {
                         <Link href={`/admin/categories/${root.id}/edit`} className="p-2 text-gray-400 hover:text-primary transition-colors bg-white border border-gray-100 rounded-lg hover:bg-soft-gray">
                           <Edit className="w-4 h-4" />
                         </Link>
-                        <form action={deleteCategory}>
-                          <input type="hidden" name="id" value={root.id} />
-                          <button type="submit" className="p-2 text-gray-400 hover:text-red-500 transition-colors bg-white border border-gray-100 rounded-lg hover:bg-soft-gray">
-                            <Trash className="w-4 h-4" />
-                          </button>
-                        </form>
+                        <DeleteCategoryButton 
+                          categoryId={root.id} 
+                          categoryName={root.name} 
+                          onDelete={deleteCategory} 
+                        />
                       </div>
                     </td>
                   </tr>
@@ -159,12 +193,12 @@ export default async function CategoriesAdminPage() {
                           <Link href={`/admin/categories/${child.id}/edit`} className="p-1.5 text-gray-400 hover:text-primary transition-colors bg-white border border-gray-100 rounded-lg hover:bg-soft-gray">
                             <Edit className="w-3.5 h-3.5" />
                           </Link>
-                          <form action={deleteCategory}>
-                            <input type="hidden" name="id" value={child.id} />
-                            <button type="submit" className="p-1.5 text-gray-400 hover:text-red-500 transition-colors bg-white border border-gray-100 rounded-lg hover:bg-soft-gray">
-                              <Trash className="w-3.5 h-3.5" />
-                            </button>
-                          </form>
+                          <DeleteCategoryButton 
+                            categoryId={child.id} 
+                            categoryName={child.name} 
+                            onDelete={deleteCategory} 
+                            isSmall 
+                          />
                         </div>
                       </td>
                     </tr>

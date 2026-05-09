@@ -4,6 +4,8 @@ import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import { revalidatePath } from 'next/cache'
 import ImageUploader from '@/components/admin/ImageUploader'
+import ConfirmSubmitForm from '@/components/admin/ConfirmSubmitForm'
+import AdminBreadcrumb from '@/components/admin/AdminBreadcrumb'
 
 export default async function EditCategoryPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -47,6 +49,12 @@ export default async function EditCategoryPage({ params }: { params: Promise<{ i
 
   return (
     <div>
+      <AdminBreadcrumb 
+        items={[
+          { label: 'Danh mục', href: '/admin/categories' },
+          { label: 'Chỉnh sửa' }
+        ]} 
+      />
       <div className="mb-8">
         <Link href="/admin/categories" className="inline-flex items-center gap-2 text-gray-500 hover:text-dark mb-4 transition-colors">
           <ArrowLeft className="w-4 h-4" /> Quay lại danh mục
@@ -56,7 +64,7 @@ export default async function EditCategoryPage({ params }: { params: Promise<{ i
       </div>
 
       <div className="bg-white rounded-[2rem] border border-gray-100 shadow-sm p-8 max-w-xl">
-        <form action={updateCategory} className="space-y-5">
+        <ConfirmSubmitForm action={updateCategory} message="Bạn có chắc chắn muốn lưu các thay đổi cho danh mục này không?" className="space-y-5">
           <div>
             <label className="block text-sm font-bold text-dark mb-2">Tên danh mục *</label>
             <input name="name" required type="text" defaultValue={category.name} className="w-full bg-soft-gray border-none rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20" />
@@ -96,7 +104,7 @@ export default async function EditCategoryPage({ params }: { params: Promise<{ i
               </button>
             </div>
           </div>
-        </form>
+        </ConfirmSubmitForm>
       </div>
     </div>
   )

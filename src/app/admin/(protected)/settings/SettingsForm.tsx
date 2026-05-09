@@ -10,6 +10,8 @@ interface SettingsFormProps {
     hotline_phone: string
     messenger_url: string
     shop_address: string
+    highlight_1_text: string
+    highlight_2_text: string
   }
 }
 
@@ -89,6 +91,30 @@ export default function SettingsForm({ initialData }: SettingsFormProps) {
             placeholder="Số 123, đường ABC..."
             className="w-full bg-soft-gray border-none rounded-xl px-5 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
           ></textarea>
+        </div>
+
+        <div className="bg-soft-gray/30 p-6 rounded-[2rem] space-y-4">
+          <h3 className="text-sm font-bold text-dark mb-2">Đặc điểm nổi bật (Hiển thị ở trang chi tiết sản phẩm)</h3>
+          <div className="grid md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Đặc điểm 1 (VD: Bảo hành)</label>
+              <input 
+                name="highlight_1_text"
+                type="text" 
+                defaultValue={initialData.highlight_1_text}
+                className="w-full bg-white border-none rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+              />
+            </div>
+            <div>
+              <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">Đặc điểm 2 (VD: Giao hàng)</label>
+              <input 
+                name="highlight_2_text"
+                type="text" 
+                defaultValue={initialData.highlight_2_text}
+                className="w-full bg-white border-none rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+              />
+            </div>
+          </div>
         </div>
 
         <button 

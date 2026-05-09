@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { FreeMode, Navigation, Thumbs } from "swiper/modules";
 import "swiper/css";
@@ -32,11 +33,16 @@ export default function ProductImages({ images = [] }: { images: string[] }) {
         >
           {images.map((img, index) => (
             <SwiperSlide key={index}>
-              <img
-                src={img}
-                alt={`Product image ${index + 1}`}
-                className="w-full h-full object-cover"
-              />
+              <div className="w-full h-full relative">
+                <Image
+                  src={img}
+                  alt={`Product image ${index + 1}`}
+                  fill
+                  priority={index === 0}
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  className="w-full h-full object-cover"
+                />
+              </div>
             </SwiperSlide>
           ))}
         </Swiper>
@@ -56,10 +62,12 @@ export default function ProductImages({ images = [] }: { images: string[] }) {
           >
             {images.map((img, index) => (
               <SwiperSlide key={index} className="cursor-pointer">
-                <div className="w-full h-full rounded-xl lg:rounded-2xl overflow-hidden border-2 border-transparent transition-all [.swiper-slide-thumb-active_&]:border-primary shadow-sm bg-white">
-                  <img
+                <div className="w-full h-full rounded-xl lg:rounded-2xl overflow-hidden border-2 border-transparent transition-all [.swiper-slide-thumb-active_&]:border-primary shadow-sm bg-white relative">
+                  <Image
                     src={img}
                     alt={`Thumbnail ${index + 1}`}
+                    fill
+                    sizes="100px"
                     className="w-full h-full object-cover"
                   />
                 </div>

@@ -31,8 +31,8 @@ model Product {
   id              String       @id @default(uuid())
   name            String
   slug            String       @unique
-  price           Int
-  originalPrice   Int?
+  price           Int?         // Để optional vì sẽ dùng giá từ ProductSize
+  originalPrice   Int?         // Để optional
   description     String?      // Rich text
   images          String[]     // Mảng URL ảnh
   tags            String[]     // Lưu size/color
@@ -47,15 +47,16 @@ model Product {
 }
 
 model ProductSize {
-  id        String   @id @default(uuid())
-  name      String   // VD: "30cm x 45cm", "KÍCH THƯỚC YÊU CẦU"
-  price     Int?     // Giá tiền (null nếu là giá liên hệ)
+  id            String   @id @default(uuid())
+  name          String   // VD: "30cm x 45cm", "KÍCH THƯỚC YÊU CẦU"
+  price         Int?     // Giá tiền (null nếu là giá liên hệ)
+  originalPrice Int?     // Giá gốc (giá trước khi giảm)
   
-  productId String
-  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId     String
+  product       Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
 
 

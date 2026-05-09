@@ -6,6 +6,8 @@ import ImageUploader from '@/components/admin/ImageUploader'
 import RichTextEditor from '@/components/admin/RichTextEditor'
 import CategorySubCategorySelect from '@/components/admin/CategorySubCategorySelect'
 import ProductSizeInput from '@/components/admin/ProductSizeInput'
+import ConfirmSubmitForm from '@/components/admin/ConfirmSubmitForm'
+import AdminBreadcrumb from '@/components/admin/AdminBreadcrumb'
 
 export default async function CreateProductPage() {
   const categories = await prisma.category.findMany({
@@ -18,8 +20,7 @@ export default async function CreateProductPage() {
     'use server'
     const name = formData.get('name') as string
     const slug = name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)+/g, "")
-    const price = parseInt(formData.get('price') as string)
-    const originalPrice = formData.get('originalPrice') ? parseInt(formData.get('originalPrice') as string) : null
+    const price = parseInt(formData.get('price') as string) || 0
     const description = formData.get('description') as string
     const categoryId = formData.get('categoryId') as string
     const isFeatured = formData.get('isFeatured') === 'on'
@@ -40,7 +41,7 @@ export default async function CreateProductPage() {
           name,
           slug,
           price: basePrice, // Store the lowest price as the base price
-          originalPrice,
+          originalPrice: null, // No longer used globally
           description,
           categoryId,
           isFeatured,
@@ -48,7 +49,8 @@ export default async function CreateProductPage() {
           sizes: {
             create: sizes.map((s: any) => ({
               name: s.name,
-              price: s.price
+              price: s.price,
+              originalPrice: s.originalPrice
             }))
           }
         }
@@ -59,6 +61,12 @@ export default async function CreateProductPage() {
 
   return (
     <div>
+      <AdminBreadcrumb 
+        items={[
+          { label: 'Sản phẩm', href: '/admin/products' },
+          { label: 'Thêm mới' }
+        ]} 
+      />
       <div className="mb-8">
         <Link href="/admin/products" className="inline-flex items-center gap-2 text-gray-500 hover:text-dark mb-4 transition-colors">
           <ArrowLeft className="w-4 h-4" /> Quay lại danh sách
@@ -68,7 +76,7 @@ export default async function CreateProductPage() {
       </div>
 
       <div className="bg-white rounded-[2rem] border border-gray-100 shadow-sm p-8 max-w-3xl">
-        <form action={createProduct} className="space-y-6">
+        <ConfirmSubmitForm action={createProduct} message="Bạn có chắc chắn muốn tạo sản phẩm này không?" className="space-y-6">
           <div className="grid grid-cols-1 gap-6">
             <div>
               <label className="block text-sm font-bold text-dark mb-2">Tên sản phẩm *</label>
@@ -77,14 +85,10 @@ export default async function CreateProductPage() {
             
             <CategorySubCategorySelect categories={categories} />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="md:col-span-2">
+            <div className="grid grid-cols-1 gap-6">
+              <div className="col-span-full">
                 <label className="block text-sm font-bold text-dark mb-2">Kích thước và Giá bán (VNĐ) *</label>
                 <ProductSizeInput />
-              </div>
-              <div>
-                <label className="block text-sm font-bold text-dark mb-2">Giá gốc (VNĐ) (Tùy chọn - Dùng chung)</label>
-                <input name="originalPrice" type="number" min="0" className="w-full bg-soft-gray border-none rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="Chỉ điền nếu có giảm giá (bị gạch ngang)" />
               </div>
             </div>
           </div>
@@ -115,7 +119,7 @@ export default async function CreateProductPage() {
               Lưu Sản Phẩm
             </button>
           </div>
-        </form>
+        </ConfirmSubmitForm>
       </div>
     </div>
   )

@@ -1,4 +1,5 @@
 import prisma from "@/lib/prisma";
+import Image from "next/image";
 import { Search, SlidersHorizontal, MessageSquare, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import ShopSort from "@/components/ShopSort";
@@ -66,6 +67,9 @@ async function ShopContent({ searchParams }: ShopPageProps) {
     include: { 
       category: {
         include: { parent: true }
+      },
+      sizes: {
+        orderBy: { price: 'asc' }
       }
     }
   }).catch(() => []);
@@ -158,47 +162,58 @@ async function ShopContent({ searchParams }: ShopPageProps) {
 
           {products.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-              {products.map((product: any) => (
-                <div key={product.id} className="product-card bg-white rounded-[2rem] overflow-hidden flex flex-col group border border-gray-50 hover:shadow-2xl transition-all duration-500">
-                  <Link href={`/product/${product.slug}`} className="relative aspect-[4/3] overflow-hidden">
-                    <img
-                      src={product.images[0] || "https://images.unsplash.com/photo-1544457070-4cd773b4d71e?q=80&w=800&auto=format&fit=crop"}
-                      alt={product.name}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                    />
-                    <div className="absolute top-4 left-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">
-                      {product.category?.name || "Bộ sưu tập"}
-                    </div>
-                  </Link>
-                  <div className="p-6 lg:p-8 flex flex-col flex-grow">
-                    <Link href={`/product/${product.slug}`}>
-                      <h3 className="text-lg font-bold mb-3 text-dark group-hover:text-primary transition-colors line-clamp-1">
-                        {product.name}
-                      </h3>
-                    </Link>
-                    <div className="text-gray-400 text-xs mb-6 leading-relaxed line-clamp-2" dangerouslySetInnerHTML={{ __html: product.description || "" }} />
-                    <div className="mt-auto flex items-center justify-between pt-6 border-t border-gray-50">
-                      <div className="flex flex-col">
-                        <span className="text-lg font-bold text-primary">
-                          {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.price)}
-                        </span>
-                        {product.originalPrice && (
-                          <span className="text-[10px] text-gray-300 line-through">
-                            {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.originalPrice)}
-                          </span>
-                        )}
+              {products.map((product: any) => {
+                const firstSize = product.sizes && product.sizes.length > 0 ? product.sizes[0] : null;
+                const displayPrice = firstSize ? firstSize.price ?? product.price : product.price;
+                const displayOriginalPrice = firstSize ? firstSize.originalPrice : product.originalPrice;
+
+                return (
+                  <div key={product.id} className="product-card bg-white rounded-[2rem] overflow-hidden flex flex-col group border border-gray-50 hover:shadow-2xl transition-all duration-500">
+                    <Link href={`/product/${product.slug}`} className="relative aspect-[4/3] overflow-hidden">
+                      <Image
+                        src={product.images[0] || "https://images.unsplash.com/photo-1544457070-4cd773b4d71e?q=80&w=800&auto=format&fit=crop"}
+                        alt={product.name}
+                        fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      />
+                      <div className="absolute top-4 left-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">
+                        {product.category?.name || "Bộ sưu tập"}
                       </div>
-                      <a
-                        href={`https://zalo.me/${process.env.NEXT_PUBLIC_ZALO_PHONE || '0987654321'}`}
-                        target="_blank"
-                        className="w-10 h-10 bg-soft-gray text-dark rounded-xl flex items-center justify-center hover:bg-primary hover:text-white transition-all shadow-sm"
-                      >
-                        <MessageSquare className="w-4 h-4" />
-                      </a>
+                    </Link>
+                    <div className="p-6 lg:p-8 flex flex-col flex-grow">
+                      <Link href={`/product/${product.slug}`}>
+                        <h3 className="text-lg font-bold mb-3 text-dark group-hover:text-primary transition-colors line-clamp-1">
+                          {product.name}
+                        </h3>
+                      </Link>
+                      <div className="text-gray-400 text-xs mb-6 leading-relaxed line-clamp-2" dangerouslySetInnerHTML={{ __html: product.description || "" }} />
+                      <div className="mt-auto flex items-center justify-between pt-6 border-t border-gray-50">
+                        <div className="flex flex-col">
+                          <span className="text-lg font-bold text-primary">
+                            {displayPrice > 0 
+                              ? new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(displayPrice)
+                              : "Liên hệ"
+                            }
+                          </span>
+                          {displayOriginalPrice && displayOriginalPrice > (displayPrice || 0) && (
+                            <span className="text-[10px] text-gray-300 line-through">
+                              {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(displayOriginalPrice)}
+                            </span>
+                          )}
+                        </div>
+                        <a
+                          href={`https://zalo.me/${process.env.NEXT_PUBLIC_ZALO_PHONE || '0987654321'}`}
+                          target="_blank"
+                          className="w-10 h-10 bg-soft-gray text-dark rounded-xl flex items-center justify-center hover:bg-primary hover:text-white transition-all shadow-sm"
+                        >
+                          <MessageSquare className="w-4 h-4" />
+                        </a>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           ) : (
             <div className="bg-white rounded-[3rem] p-12 lg:p-20 text-center border border-gray-100">
