@@ -30,7 +30,7 @@ export default async function Home() {
     prisma.category.findMany({
       where: { parentId: null }, // Chỉ lấy các danh mục gốc
       orderBy: { name: "asc" },
-      take: 4 // Tối đa 4 danh mục
+      take: 12 // Tăng giới hạn để hỗ trợ nhiều hơn 4 danh mục
     }).catch((e) => { console.error("Category fetch error:", e); return []; })
   ]);
 
@@ -106,43 +106,59 @@ export default async function Home() {
             <div className="hidden md:block flex-1 h-px bg-gray-100 mx-8"></div>
           </div>
           
-          <div className={`grid grid-cols-1 sm:grid-cols-2 ${gridColsClass} gap-8`}>
-            {allRootCategories.map((cat: any, index: number) => (
-              <Link 
-                key={cat.id} 
-                href={`/shop?category=${cat.id}`}
-                className={`group relative overflow-hidden rounded-[2.5rem] aspect-[3/4] shadow-lg transition-all duration-700 hover:shadow-2xl hover:-translate-y-2 ${categoryCount > 2 && index % 2 !== 0 ? 'lg:translate-y-8' : ''}`}
-              >
-                {/* Background Image */}
-                <Image 
-                  src={cat.image || `https://images.unsplash.com/photo-1513519245088-0e12902e5a38?q=80&w=800&auto=format&fit=crop&sig=${index}`} 
-                  alt={cat.name}
-                  fill
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
-                />
-                
-                {/* Gradient Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-dark/90 via-dark/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity"></div>
-                
-                {/* Content */}
-                <div className="absolute inset-0 p-8 flex flex-col justify-end">
-                  <p className="text-primary font-bold text-[10px] uppercase tracking-[0.3em] mb-2 transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
-                    DanyDecor Collection
-                  </p>
-                  <h3 className="text-2xl font-bold text-white font-serif mb-4 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
-                    {cat.name}
-                  </h3>
-                  
-                  <div className="flex items-center gap-2 text-white/70 text-xs font-medium transform translate-y-8 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-700 delay-100">
-                    Xem bộ sưu tập <ArrowRight className="w-4 h-4" />
-                  </div>
-                </div>
+          <div className={`grid grid-cols-1 sm:grid-cols-2 ${gridColsClass} gap-8 auto-rows-auto`}>
+            {allRootCategories.map((cat: any, index: number) => {
+              // Logic Bento Box: Xác định ô nào sẽ rộng (col-span-2)
+              let isWide = false;
+              if (categoryCount === 5) {
+                isWide = index === 0 || index === 3 || index === 4;
+              } else if (categoryCount === 6) {
+                isWide = index === 0 || index === 5;
+              } else if (categoryCount === 7) {
+                isWide = index === 0;
+              } else if (categoryCount > 4) {
+                isWide = index % 5 === 0;
+              }
 
-                {/* Decorative border on hover */}
-                <div className="absolute inset-4 border border-white/20 rounded-[2rem] pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
-              </Link>
-            ))}
+              return (
+                <Link 
+                  key={cat.id} 
+                  href={`/shop?category=${cat.id}`}
+                  className={`group relative overflow-hidden rounded-[2.5rem] shadow-lg transition-all duration-700 hover:shadow-2xl hover:-translate-y-2 
+                    ${isWide ? 'lg:col-span-2 aspect-[16/10]' : 'lg:col-span-1 aspect-[3/4]'}
+                  `}
+                >
+                  {/* Background Image */}
+                  <Image 
+                    src={cat.image || `https://images.unsplash.com/photo-1513519245088-0e12902e5a38?q=80&w=800&auto=format&fit=crop&sig=${index}`} 
+                    alt={cat.name}
+                    fill
+                    sizes={isWide ? "(max-width: 768px) 100vw, 50vw" : "(max-width: 768px) 100vw, 25vw"}
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+                  />
+                  
+                  {/* Gradient Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-dark/90 via-dark/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity"></div>
+                  
+                  {/* Content */}
+                  <div className="absolute inset-0 p-8 flex flex-col justify-end">
+                    <p className="text-primary font-bold text-[10px] uppercase tracking-[0.3em] mb-2 transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
+                      DanyDecor Collection
+                    </p>
+                    <h3 className={`${isWide ? 'text-3xl' : 'text-2xl'} font-bold text-white font-serif mb-4 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500`}>
+                      {cat.name}
+                    </h3>
+                    
+                    <div className="flex items-center gap-2 text-white/70 text-xs font-medium transform translate-y-8 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-700 delay-100">
+                      Xem bộ sưu tập <ArrowRight className="w-4 h-4" />
+                    </div>
+                  </div>
+
+                  {/* Decorative border on hover */}
+                  <div className="absolute inset-4 border border-white/20 rounded-[2rem] pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+                </Link>
+              );
+            })}
           </div>
           
           {categoryCount > 2 && <div className="h-12 hidden lg:block"></div>}
