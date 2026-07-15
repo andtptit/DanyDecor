@@ -1,7 +1,15 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 import { v4 as uuidv4 } from 'uuid'
+import sharp from 'sharp'
 import { createClient as createServerAuthClient } from '@/utils/supabase/server'
+
+// Chạy ở Node runtime để dùng được sharp
+export const runtime = 'nodejs'
+
+// Giới hạn kích thước & chất lượng ảnh sau khi nén
+const MAX_DIMENSION = 1600
+const WEBP_QUALITY = 80
 
 export async function POST(req: NextRequest) {
   // Chỉ cho phép admin đã đăng nhập upload (endpoint dùng Service Role Key)
@@ -39,14 +47,33 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'File size must be less than 5MB' }, { status: 400 })
     }
 
-    const ext = file.name.split('.').pop() || 'jpg'
-    const fileName = `${uuidv4()}.${ext}`
-    const buffer = await file.arrayBuffer()
+    // Nén + resize ngay lúc upload để tiết kiệm Storage và tăng tốc tối ưu ảnh:
+    // tự xoay theo EXIF, thu nhỏ cạnh dài về tối đa MAX_DIMENSION (không phóng to),
+    // rồi chuyển sang WebP chất lượng WEBP_QUALITY.
+    const inputBuffer = Buffer.from(await file.arrayBuffer())
+    let outputBuffer: Buffer
+    try {
+      outputBuffer = await sharp(inputBuffer)
+        .rotate()
+        .resize({
+          width: MAX_DIMENSION,
+          height: MAX_DIMENSION,
+          fit: 'inside',
+          withoutEnlargement: true,
+        })
+        .webp({ quality: WEBP_QUALITY })
+        .toBuffer()
+    } catch (e) {
+      console.error('Image processing error:', e)
+      return NextResponse.json({ error: 'Không xử lý được ảnh (định dạng không hợp lệ?)' }, { status: 400 })
+    }
+
+    const fileName = `${uuidv4()}.webp`
 
     const { error } = await supabase.storage
       .from('product-images')
-      .upload(fileName, buffer, {
-        contentType: file.type,
+      .upload(fileName, outputBuffer, {
+        contentType: 'image/webp',
         upsert: false,
       })
 

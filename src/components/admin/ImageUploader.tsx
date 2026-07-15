@@ -21,7 +21,18 @@ export default function ImageUploader({ name = 'images', maxImages = 6, initialI
   const [uploading, setUploading] = useState(false)
   const [dragOver, setDragOver] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [dragIndex, setDragIndex] = useState<number | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+
+  const moveImage = (from: number, to: number) => {
+    if (from === to) return
+    setImages(prev => {
+      const next = [...prev]
+      const [moved] = next.splice(from, 1)
+      next.splice(to, 0, moved)
+      return next
+    })
+  }
 
   const uploadFile = async (file: File): Promise<UploadedImage | null> => {
     const formData = new FormData()
@@ -98,14 +109,26 @@ export default function ImageUploader({ name = 'images', maxImages = 6, initialI
       {images.length > 0 && (
         <div className="grid grid-cols-3 gap-3">
           {images.map((img, i) => (
-            <div key={i} className="relative group aspect-square rounded-xl overflow-hidden bg-gray-100 border border-gray-100">
-              <img src={img.url} alt="" className="w-full h-full object-cover" />
+            <div
+              key={img.url}
+              draggable
+              onDragStart={() => setDragIndex(i)}
+              onDragEnd={() => setDragIndex(null)}
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={(e) => {
+                e.preventDefault()
+                if (dragIndex !== null) moveImage(dragIndex, i)
+                setDragIndex(null)
+              }}
+              className={`relative group aspect-square rounded-xl overflow-hidden bg-gray-100 border cursor-move transition-all ${dragIndex === i ? 'border-primary ring-2 ring-primary/30 opacity-60' : 'border-gray-100'}`}
+            >
+              <img src={img.url} alt="" draggable={false} className="w-full h-full object-cover pointer-events-none" />
               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                 <button type="button" onClick={() => removeImage(i)} className="w-8 h-8 bg-white rounded-full flex items-center justify-center hover:bg-red-50 transition-colors">
                   <X className="w-4 h-4 text-red-500" />
                 </button>
               </div>
-              {i === 0 && <span className="absolute top-2 left-2 bg-primary text-white text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-widest">Ảnh chính</span>}
+              {i === 0 && <span className="absolute top-2 left-2 bg-primary text-white text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-widest">Ảnh bìa</span>}
             </div>
           ))}
           {images.length < maxImages && (
@@ -117,7 +140,12 @@ export default function ImageUploader({ name = 'images', maxImages = 6, initialI
         </div>
       )}
 
-      {images.length > 0 && <p className="text-xs text-gray-400">{images.length}/{maxImages} ảnh</p>}
+      {images.length > 0 && (
+        <p className="text-xs text-gray-400">
+          {images.length}/{maxImages} ảnh
+          {images.length > 1 && <span> · Kéo để sắp xếp, ảnh đầu tiên là ảnh bìa</span>}
+        </p>
+      )}
     </div>
   )
 }

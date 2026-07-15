@@ -8,6 +8,7 @@ import { Suspense } from "react";
 import { sanitizeRichText } from "@/lib/sanitize";
 import { getPublicSettings } from "@/lib/settings";
 import { SITE_NAME } from "@/lib/site";
+import FavoriteButton from "@/components/wishlist/FavoriteButton";
 
 export const revalidate = 60;
 
@@ -221,7 +222,11 @@ async function ShopContent({ searchParams }: ShopPageProps) {
                 const displayOriginalPrice = firstSize ? firstSize.originalPrice : product.originalPrice;
 
                 return (
-                  <div key={product.id} className="product-card bg-white rounded-[2rem] overflow-hidden flex flex-col group border border-gray-50 hover:shadow-2xl transition-all duration-500">
+                  <div key={product.id} className="product-card relative bg-white rounded-[2rem] overflow-hidden flex flex-col group border border-gray-50 hover:shadow-2xl transition-all duration-500">
+                    <FavoriteButton
+                      product={{ id: product.id, slug: product.slug, name: product.name, image: product.images[0], price: displayPrice > 0 ? displayPrice : 0 }}
+                      className="absolute top-4 right-4 z-10"
+                    />
                     <Link href={`/product/${product.slug}`} className="relative aspect-[4/3] overflow-hidden">
                       <Image
                         src={product.images[0] || "https://images.unsplash.com/photo-1544457070-4cd773b4d71e?q=80&w=800&auto=format&fit=crop"}

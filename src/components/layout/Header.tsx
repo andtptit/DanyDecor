@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { Palette, MessageCircle, PhoneCall } from "lucide-react";
 import { getPublicSettings } from "@/lib/settings";
+import WishlistNavButton from "@/components/wishlist/WishlistNavButton";
+import MobileMenu from "@/components/layout/MobileMenu";
 
 export default async function Header() {
   const { zaloPhone, hotlinePhone } = await getPublicSettings();
@@ -21,10 +23,16 @@ export default async function Header() {
         {/* Navigation */}
         <nav className="hidden lg:flex gap-8">
           <Link
-            href="/#tranh"
+            href="/"
             className="text-[11px] uppercase tracking-[0.2em] font-bold hover:text-primary transition-colors"
           >
-            Sản Phẩm
+            Trang Chủ
+          </Link>
+          <Link
+            href="/shop"
+            className="text-[11px] uppercase tracking-[0.2em] font-bold hover:text-primary transition-colors"
+          >
+            Cửa Hàng
           </Link>
           <Link
             href="/#reviews"
@@ -35,7 +43,7 @@ export default async function Header() {
         </nav>
 
         {/* Call to action */}
-        <div className="flex items-center gap-2 lg:gap-4">
+        <div className="flex items-center gap-1 lg:gap-3">
           <a
             href={`tel:${hotlinePhone}`}
             className="hidden sm:flex items-center gap-2 text-dark font-bold text-xs hover:text-primary transition-colors"
@@ -43,15 +51,20 @@ export default async function Header() {
             <PhoneCall className="w-3.5 h-3.5" />
             <span>{hotlinePhone}</span>
           </a>
+
+          <WishlistNavButton />
+
           <a
             href={`https://zalo.me/${zaloPhone}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="btn-primary px-4 lg:px-6 py-2 lg:py-2.5 rounded-full font-bold text-[10px] lg:text-xs flex items-center gap-2 whitespace-nowrap"
+            className="btn-primary px-4 lg:px-6 py-2 lg:py-2.5 rounded-full font-bold text-[10px] lg:text-xs hidden sm:flex items-center gap-2 whitespace-nowrap"
           >
             <MessageCircle className="w-3.5 h-3.5 lg:w-4 lg:h-4" />
             <span className="hidden sm:inline">Liên hệ</span> Zalo
           </a>
+
+          <MobileMenu zaloPhone={zaloPhone} hotlinePhone={hotlinePhone} />
         </div>
       </div>
     </header>

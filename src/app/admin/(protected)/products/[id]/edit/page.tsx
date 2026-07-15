@@ -29,9 +29,7 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
   async function updateProduct(formData: FormData) {
     'use server'
     await requireAdmin()
-    const name = formData.get('name') as string
-    const slug = await generateUniqueProductSlug(name, id)
-    const price = parseInt(formData.get('price') as string) || 0
+    const name = ((formData.get('name') as string) || '').trim()
     const description = formData.get('description') as string
     const categoryId = formData.get('categoryId') as string
     const isFeatured = formData.get('isFeatured') === 'on'
@@ -41,52 +39,57 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
     const sizesJSON = formData.get('sizesJSON') as string
     const sizes = sizesJSON ? JSON.parse(sizesJSON) : []
 
+    // Validation — trả lỗi rõ ràng thay vì im lặng bỏ qua
+    if (!name) return { error: 'Vui lòng nhập tên sản phẩm.' }
+    if (!categoryId) return { error: 'Vui lòng chọn danh mục cho sản phẩm.' }
+    if (sizes.length === 0) return { error: 'Vui lòng thêm ít nhất một kích thước.' }
+
+    const slug = await generateUniqueProductSlug(name, id)
+
     // Find base price (lowest valid price from sizes)
     const validPrices = sizes.filter((s: any) => s.price !== null).map((s: any) => s.price)
     const basePrice = validPrices.length > 0 ? Math.min(...validPrices) : 0
 
-    if (name && categoryId) {
-      // Xóa các ảnh đã bị gỡ khỏi sản phẩm khỏi Storage để tránh ảnh rác
-      const existing = await prisma.product.findUnique({
-        where: { id },
-        select: { images: true }
-      })
-      const removedImages = (existing?.images || []).filter(url => !images.includes(url))
-      if (removedImages.length > 0) {
-        await deleteImagesFromStorage(removedImages)
-      }
-
-      // First, delete existing sizes for this product to avoid complex diffing
-      await prisma.productSize.deleteMany({
-        where: { productId: id }
-      })
-
-      await prisma.product.update({
-        where: { id },
-        data: { 
-          name, 
-          slug, 
-          price: basePrice, 
-          originalPrice: null, 
-          description, 
-          categoryId, 
-          isFeatured, 
-          images,
-          sizes: {
-            create: sizes.map((s: any) => ({
-              name: s.name,
-              price: s.price,
-              originalPrice: s.originalPrice
-            }))
-          }
-        }
-      })
-      revalidatePath('/admin/products')
-      revalidatePath('/')
-      revalidatePath('/shop')
-      revalidatePath(`/product/${slug}`)
-      redirect('/admin/products')
+    // Xóa các ảnh đã bị gỡ khỏi sản phẩm khỏi Storage để tránh ảnh rác
+    const existing = await prisma.product.findUnique({
+      where: { id },
+      select: { images: true }
+    })
+    const removedImages = (existing?.images || []).filter(url => !images.includes(url))
+    if (removedImages.length > 0) {
+      await deleteImagesFromStorage(removedImages)
     }
+
+    // First, delete existing sizes for this product to avoid complex diffing
+    await prisma.productSize.deleteMany({
+      where: { productId: id }
+    })
+
+    await prisma.product.update({
+      where: { id },
+      data: {
+        name,
+        slug,
+        price: basePrice,
+        originalPrice: null,
+        description,
+        categoryId,
+        isFeatured,
+        images,
+        sizes: {
+          create: sizes.map((s: any) => ({
+            name: s.name,
+            price: s.price,
+            originalPrice: s.originalPrice
+          }))
+        }
+      }
+    })
+    revalidatePath('/admin/products')
+    revalidatePath('/')
+    revalidatePath('/shop')
+    revalidatePath(`/product/${slug}`)
+    redirect('/admin/products')
   }
 
   return (

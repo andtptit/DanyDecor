@@ -22,48 +22,51 @@ export default async function CreateProductPage() {
   async function createProduct(formData: FormData) {
     'use server'
     await requireAdmin()
-    const name = formData.get('name') as string
-    const slug = await generateUniqueProductSlug(name)
-    const price = parseInt(formData.get('price') as string) || 0
-    const description = formData.get('description') as string
+    const name = ((formData.get('name') as string) || '').trim()
     const categoryId = formData.get('categoryId') as string
+    const description = formData.get('description') as string
     const isFeatured = formData.get('isFeatured') === 'on'
-    
+
     const imagesStr = formData.get('images') as string
     const images = imagesStr ? imagesStr.split(',').map(s => s.trim()).filter(Boolean) : []
 
     const sizesJSON = formData.get('sizesJSON') as string
     const sizes = sizesJSON ? JSON.parse(sizesJSON) : []
-    
+
+    // Validation — trả lỗi rõ ràng thay vì im lặng bỏ qua
+    if (!name) return { error: 'Vui lòng nhập tên sản phẩm.' }
+    if (!categoryId) return { error: 'Vui lòng chọn danh mục cho sản phẩm.' }
+    if (sizes.length === 0) return { error: 'Vui lòng thêm ít nhất một kích thước.' }
+
+    const slug = await generateUniqueProductSlug(name)
+
     // Find base price (lowest valid price from sizes)
     const validPrices = sizes.filter((s: any) => s.price !== null).map((s: any) => s.price)
     const basePrice = validPrices.length > 0 ? Math.min(...validPrices) : 0
 
-    if (name && categoryId) {
-      await prisma.product.create({
-        data: {
-          name,
-          slug,
-          price: basePrice, // Store the lowest price as the base price
-          originalPrice: null, // No longer used globally
-          description,
-          categoryId,
-          isFeatured,
-          images,
-          sizes: {
-            create: sizes.map((s: any) => ({
-              name: s.name,
-              price: s.price,
-              originalPrice: s.originalPrice
-            }))
-          }
+    await prisma.product.create({
+      data: {
+        name,
+        slug,
+        price: basePrice, // Store the lowest price as the base price
+        originalPrice: null, // No longer used globally
+        description,
+        categoryId,
+        isFeatured,
+        images,
+        sizes: {
+          create: sizes.map((s: any) => ({
+            name: s.name,
+            price: s.price,
+            originalPrice: s.originalPrice
+          }))
         }
-      })
-      // Cập nhật ngay các trang public (không phải chờ ISR 60s)
-      revalidatePath('/')
-      revalidatePath('/shop')
-      redirect('/admin/products')
-    }
+      }
+    })
+    // Cập nhật ngay các trang public (không phải chờ ISR 60s)
+    revalidatePath('/')
+    revalidatePath('/shop')
+    redirect('/admin/products')
   }
 
   return (

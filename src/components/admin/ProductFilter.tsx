@@ -31,6 +31,7 @@ export default function ProductFilter({ categories, totalResults }: ProductFilte
       const params = new URLSearchParams(searchParams.toString());
       if (search) params.set('q', search);
       else params.delete('q');
+      params.delete('page'); // đổi bộ lọc thì về trang 1
       router.push(`/admin/products?${params.toString()}`);
     }, 500);
 
@@ -43,6 +44,7 @@ export default function ProductFilter({ categories, totalResults }: ProductFilte
     const params = new URLSearchParams(searchParams.toString());
     if (value) params.set('category', value);
     else params.delete('category');
+    params.delete('page'); // đổi bộ lọc thì về trang 1
     router.push(`/admin/products?${params.toString()}`);
   };
 
@@ -93,6 +95,7 @@ export default function ProductFilter({ categories, totalResults }: ProductFilte
                     setCategoryId('');
                     const params = new URLSearchParams(searchParams.toString());
                     params.delete('category');
+                    params.delete('page');
                     router.push(`/admin/products?${params.toString()}`);
                   }}
                   className="hover:text-dark transition-colors"
@@ -109,6 +112,7 @@ export default function ProductFilter({ categories, totalResults }: ProductFilte
                     setSearch('');
                     const params = new URLSearchParams(searchParams.toString());
                     params.delete('q');
+                    params.delete('page');
                     router.push(`/admin/products?${params.toString()}`);
                   }}
                   className="hover:text-dark transition-colors"

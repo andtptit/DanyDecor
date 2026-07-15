@@ -6,6 +6,7 @@ import { ShieldCheck, Zap, ChevronRight, Home as HomeIcon } from "lucide-react";
 import Link from "next/link";
 import ProductImages from "@/components/ProductImages";
 import ProductOptions from "@/components/ProductOptions";
+import FavoriteButton from "@/components/wishlist/FavoriteButton";
 import { getPublicSettings } from "@/lib/settings";
 import { sanitizeRichText, htmlToPlainText } from "@/lib/sanitize";
 import { SITE_URL, SITE_NAME } from "@/lib/site";
@@ -173,9 +174,16 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                   </span>
                 )}
               </div>
-              <h1 className="text-2xl lg:text-5xl font-bold text-dark font-serif leading-tight mb-4 lg:mb-6 break-words overflow-hidden">
-                {product.name}
-              </h1>
+              <div className="flex items-start gap-3 mb-4 lg:mb-6">
+                <h1 className="flex-1 text-2xl lg:text-5xl font-bold text-dark font-serif leading-tight break-words overflow-hidden">
+                  {product.name}
+                </h1>
+                <FavoriteButton
+                  size="lg"
+                  className="mt-1 shrink-0 border border-gray-100"
+                  product={{ id: product.id, slug: product.slug, name: product.name, image: product.images?.[0], price: lowestPrice ?? 0 }}
+                />
+              </div>
               
               {/* Product Options (Size & Price & CTA) */}
               <ProductOptions 
