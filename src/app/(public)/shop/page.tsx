@@ -51,24 +51,26 @@ export async function generateMetadata({ searchParams }: ShopPageProps): Promise
 async function ShopContent({ searchParams }: ShopPageProps) {
   const { category: selectedCategoryId, sort, q, page } = await searchParams;
   const currentPage = Math.max(1, parseInt(page || '1') || 1);
-  const { zaloPhone } = await getPublicSettings();
 
-  const categories = await prisma.category.findMany({
-    include: {
-      children: {
-        orderBy: { name: "asc" }
-      }
-    },
-    where: { parentId: null },
-    orderBy: { name: "asc" }
-  }).catch(() => []);
-
-  const selectedCategory = selectedCategoryId 
-    ? await prisma.category.findUnique({ 
-        where: { id: selectedCategoryId },
-        include: { children: true, parent: true }
-      }) 
-    : null;
+  // Chạy song song các truy vấn không phụ thuộc nhau (settings, danh mục, danh mục đang chọn)
+  const [{ zaloPhone }, categories, selectedCategory] = await Promise.all([
+    getPublicSettings(),
+    prisma.category.findMany({
+      include: {
+        children: {
+          orderBy: { name: "asc" }
+        }
+      },
+      where: { parentId: null },
+      orderBy: { name: "asc" }
+    }).catch(() => []),
+    selectedCategoryId
+      ? prisma.category.findUnique({
+          where: { id: selectedCategoryId },
+          include: { children: true, parent: true }
+        }).catch(() => null)
+      : Promise.resolve(null),
+  ]);
 
   const where: any = {};
   if (selectedCategoryId) {

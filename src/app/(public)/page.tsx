@@ -126,8 +126,8 @@ export default async function Home() {
                 <Link 
                   key={cat.id} 
                   href={`/shop?category=${cat.id}`}
-                  className={`group relative overflow-hidden rounded-[2.5rem] shadow-lg transition-all duration-700 hover:shadow-2xl hover:-translate-y-2 
-                    ${isWide ? 'lg:col-span-2 aspect-[16/10]' : 'lg:col-span-1 aspect-[3/4]'}
+                  className={`group relative overflow-hidden rounded-[2.5rem] shadow-lg transition-all duration-700 hover:shadow-2xl hover:-translate-y-2 aspect-[16/10]
+                    ${isWide ? 'lg:col-span-2 lg:aspect-[16/10]' : 'lg:col-span-1 lg:aspect-[3/4]'}
                   `}
                 >
                   {/* Background Image */}

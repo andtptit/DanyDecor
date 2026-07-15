@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cache } from "react";
 import prisma from "@/lib/prisma";
 import Image from "next/image";
 import { notFound } from "next/navigation";
@@ -19,11 +20,20 @@ interface ProductPageProps {
   }>;
 }
 
+// Bọc bằng cache() để generateMetadata và component dùng chung 1 truy vấn
+// trong cùng một request (thay vì query trùng 2 lần).
+const getProduct = cache((slug: string) =>
+  prisma.product
+    .findUnique({
+      where: { slug },
+      include: { category: { include: { parent: true } }, sizes: true },
+    })
+    .catch(() => null)
+);
+
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const product = await prisma.product
-    .findUnique({ where: { slug }, include: { category: true } })
-    .catch(() => null);
+  const product = await getProduct(slug);
 
   if (!product) {
     return { title: "Không tìm thấy sản phẩm" };
@@ -59,33 +69,27 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
 
 export default async function ProductDetailPage({ params }: ProductPageProps) {
   const { slug } = await params;
-  const { zaloPhone, highlight1Text, highlight2Text } = await getPublicSettings();
 
-  const product = await prisma.product.findUnique({
-    where: { slug },
-    include: { 
-      category: {
-        include: { parent: true }
+  // Chạy song song: sản phẩm (đã cache từ generateMetadata), cấu hình, sản phẩm liên quan
+  const [product, { zaloPhone, highlight1Text, highlight2Text }, relatedProducts] = await Promise.all([
+    getProduct(slug),
+    getPublicSettings(),
+    prisma.product.findMany({
+      where: { slug: { not: slug } },
+      include: {
+        category: {
+          include: { parent: true }
+        },
+        sizes: {
+          orderBy: { price: 'asc' }
+        }
       },
-      sizes: true
-    }
-  });
+      take: 4,
+      orderBy: { createdAt: 'desc' }
+    }).catch(() => []),
+  ]);
 
   if (!product) notFound();
-
-  // Lấy các sản phẩm liên quan (cùng danh mục hoặc cùng cha)
-  const relatedProducts = await prisma.product.findMany({
-    include: { 
-      category: {
-        include: { parent: true }
-      },
-      sizes: {
-        orderBy: { price: 'asc' }
-      }
-    },
-    take: 4,
-    orderBy: { createdAt: 'desc' }
-  }).catch(() => []);
 
   const zaloLink = `https://zalo.me/${zaloPhone}`;
 
