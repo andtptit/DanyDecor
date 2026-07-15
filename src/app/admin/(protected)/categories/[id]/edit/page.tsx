@@ -6,6 +6,9 @@ import { revalidatePath } from 'next/cache'
 import ImageUploader from '@/components/admin/ImageUploader'
 import ConfirmSubmitForm from '@/components/admin/ConfirmSubmitForm'
 import AdminBreadcrumb from '@/components/admin/AdminBreadcrumb'
+import { requireAdmin } from '@/lib/auth'
+import { generateUniqueCategorySlug } from '@/lib/slug'
+import { deleteImagesFromStorage } from '@/lib/storage'
 
 export default async function EditCategoryPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -22,16 +25,26 @@ export default async function EditCategoryPage({ params }: { params: Promise<{ i
 
   async function updateCategory(formData: FormData) {
     'use server'
+    await requireAdmin()
     const name = formData.get('name') as string
     const description = formData.get('description') as string
     const parentId = formData.get('parentId') as string
-    const slug = name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)+/g, "")
+    const slug = await generateUniqueCategorySlug(name, id)
 
     // Get image
     const imagesStr = formData.get('image') as string
     const image = imagesStr ? imagesStr.split(',')[0].trim() : null
 
     if (name) {
+      // Xóa ảnh cũ khỏi Storage nếu ảnh danh mục bị thay đổi hoặc gỡ bỏ
+      const existing = await prisma.category.findUnique({
+        where: { id },
+        select: { image: true }
+      })
+      if (existing?.image && existing.image !== image) {
+        await deleteImagesFromStorage(existing.image)
+      }
+
       await prisma.category.update({
         where: { id },
         data: { 
@@ -43,6 +56,8 @@ export default async function EditCategoryPage({ params }: { params: Promise<{ i
         }
       })
       revalidatePath('/admin/categories')
+      revalidatePath('/')
+      revalidatePath('/shop')
       redirect('/admin/categories')
     }
   }

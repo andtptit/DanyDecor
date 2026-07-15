@@ -1,23 +1,51 @@
 import type { Metadata, Viewport } from "next";
 import { Be_Vietnam_Pro, Playfair_Display } from "next/font/google";
+import { SITE_URL, SITE_NAME, SITE_DESCRIPTION } from "@/lib/site";
 import "./globals.css";
 
 const beVietnamPro = Be_Vietnam_Pro({
-  weight: ['300', '400', '500', '600', '700'],
-  subsets: ["latin"],
+  weight: ['400', '500', '600', '700'],
+  subsets: ["latin", "vietnamese"],
   variable: "--font-be-vietnam-pro",
+  display: "swap",
 });
 
 const playfairDisplay = Playfair_Display({
-  weight: ['400', '500', '600', '700'],
+  weight: ['400', '700'],
   style: ['normal', 'italic'],
-  subsets: ["latin"],
+  subsets: ["latin", "vietnamese"],
   variable: "--font-playfair-display",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "DanyDecor | Tranh Treo Tường Nghệ Thuật",
-  description: "Tranh treo tường nghệ thuật cao cấp, tranh canvas, tráng gương.",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: `${SITE_NAME} | Tranh Treo Tường Nghệ Thuật`,
+    template: `%s | ${SITE_NAME}`,
+  },
+  description: SITE_DESCRIPTION,
+  applicationName: SITE_NAME,
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    type: "website",
+    locale: "vi_VN",
+    url: SITE_URL,
+    siteName: SITE_NAME,
+    title: `${SITE_NAME} | Tranh Treo Tường Nghệ Thuật`,
+    description: SITE_DESCRIPTION,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${SITE_NAME} | Tranh Treo Tường Nghệ Thuật`,
+    description: SITE_DESCRIPTION,
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export const viewport: Viewport = {

@@ -1,11 +1,14 @@
+import type { Metadata } from "next";
 import prisma from "@/lib/prisma";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { MessageSquare, ShieldCheck, Zap, ChevronRight, Home as HomeIcon } from "lucide-react";
+import { ShieldCheck, Zap, ChevronRight, Home as HomeIcon } from "lucide-react";
 import Link from "next/link";
 import ProductImages from "@/components/ProductImages";
 import ProductOptions from "@/components/ProductOptions";
 import { getPublicSettings } from "@/lib/settings";
+import { sanitizeRichText, htmlToPlainText } from "@/lib/sanitize";
+import { SITE_URL, SITE_NAME } from "@/lib/site";
 
 export const revalidate = 60;
 
@@ -13,6 +16,44 @@ interface ProductPageProps {
   params: Promise<{
     slug: string;
   }>;
+}
+
+export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const product = await prisma.product
+    .findUnique({ where: { slug }, include: { category: true } })
+    .catch(() => null);
+
+  if (!product) {
+    return { title: "Không tìm thấy sản phẩm" };
+  }
+
+  const description =
+    htmlToPlainText(product.description) ||
+    `${product.name} - tranh treo tường nghệ thuật tại ${SITE_NAME}.`;
+  const url = `${SITE_URL}/product/${product.slug}`;
+  const image = product.images?.[0];
+
+  return {
+    title: product.name,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      type: "website",
+      url,
+      title: product.name,
+      description,
+      siteName: SITE_NAME,
+      locale: "vi_VN",
+      images: image ? [{ url: image, alt: product.name }] : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: product.name,
+      description,
+      images: image ? [image] : undefined,
+    },
+  };
 }
 
 export default async function ProductDetailPage({ params }: ProductPageProps) {
@@ -47,8 +88,39 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
 
   const zaloLink = `https://zalo.me/${zaloPhone}`;
 
+  // Dữ liệu có cấu trúc (JSON-LD) giúp Google hiển thị giá/ảnh trong kết quả tìm kiếm
+  const lowestPrice = product.sizes
+    .map((s) => s.price)
+    .filter((p): p is number => typeof p === "number" && p > 0)
+    .sort((a, b) => a - b)[0] ?? (product.price && product.price > 0 ? product.price : undefined);
+
+  const productJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    image: product.images?.length ? product.images : undefined,
+    description: htmlToPlainText(product.description) || product.name,
+    category: product.category?.name,
+    brand: { "@type": "Brand", name: SITE_NAME },
+    ...(lowestPrice
+      ? {
+          offers: {
+            "@type": "Offer",
+            priceCurrency: "VND",
+            price: lowestPrice,
+            availability: "https://schema.org/InStock",
+            url: `${SITE_URL}/product/${product.slug}`,
+          },
+        }
+      : {}),
+  };
+
   return (
     <div className="bg-white min-h-screen">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+      />
       {/* Breadcrumbs */}
       <div className="bg-soft-gray/30 py-3 lg:py-4 border-b border-gray-100/50 overflow-hidden">
         <div className="container-custom">
@@ -137,7 +209,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
               </h3>
               <div 
                 className="prose prose-sm max-w-none text-gray-500 leading-relaxed text-sm lg:text-base"
-                dangerouslySetInnerHTML={{ __html: product.description || "Chưa có mô tả cho sản phẩm này." }}
+                dangerouslySetInnerHTML={{ __html: sanitizeRichText(product.description) || "Chưa có mô tả cho sản phẩm này." }}
               />
             </div>
           </div>

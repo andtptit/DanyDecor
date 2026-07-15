@@ -1,8 +1,16 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 import { v4 as uuidv4 } from 'uuid'
+import { createClient as createServerAuthClient } from '@/utils/supabase/server'
 
 export async function POST(req: NextRequest) {
+  // Chỉ cho phép admin đã đăng nhập upload (endpoint dùng Service Role Key)
+  const authClient = await createServerAuthClient()
+  const { data: { user } } = await authClient.auth.getUser()
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 

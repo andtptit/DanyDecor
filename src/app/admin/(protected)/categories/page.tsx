@@ -7,6 +7,8 @@ import ConfirmSubmitForm from '@/components/admin/ConfirmSubmitForm'
 import DeleteCategoryButton from '@/components/admin/DeleteCategoryButton'
 import AdminBreadcrumb from '@/components/admin/AdminBreadcrumb'
 import { deleteImagesFromStorage } from '@/lib/storage'
+import { requireAdmin } from '@/lib/auth'
+import { generateUniqueCategorySlug } from '@/lib/slug'
 
 export const dynamic = 'force-dynamic'
 
@@ -26,6 +28,7 @@ export default async function CategoriesAdminPage() {
 
   async function deleteCategory(formData: FormData) {
     'use server'
+    await requireAdmin()
     const id = formData.get('id') as string
     if (!id) return { success: false, error: 'Thiếu ID danh mục' }
 
@@ -68,6 +71,8 @@ export default async function CategoriesAdminPage() {
       // 3b. Xóa bản ghi trong DB
       await prisma.category.delete({ where: { id } })
       revalidatePath('/admin/categories')
+      revalidatePath('/')
+      revalidatePath('/shop')
       return { success: true }
     } catch (error) {
       console.error('Delete category error:', error)
@@ -77,12 +82,13 @@ export default async function CategoriesAdminPage() {
 
   async function createCategory(formData: FormData) {
     'use server'
+    await requireAdmin()
     const name = formData.get('name') as string
     const description = formData.get('description') as string
     const parentId = formData.get('parentId') as string
-    
-    // Auto-generate slug from name
-    const slug = name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)+/g, "")
+
+    // Auto-generate unique slug from name
+    const slug = await generateUniqueCategorySlug(name)
     
     // Get image
     const imagesStr = formData.get('image') as string
@@ -99,6 +105,8 @@ export default async function CategoriesAdminPage() {
         }
       })
       revalidatePath('/admin/categories')
+      revalidatePath('/')
+      revalidatePath('/shop')
     }
   }
 

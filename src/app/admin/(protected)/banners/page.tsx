@@ -4,6 +4,7 @@ import { Trash, ToggleLeft, ToggleRight, ImageIcon } from 'lucide-react'
 import ImageUploader from '@/components/admin/ImageUploader'
 import { deleteImagesFromStorage } from '@/lib/storage'
 import ConfirmSubmitForm from '@/components/admin/ConfirmSubmitForm'
+import { requireAdmin } from '@/lib/auth'
 
 export const dynamic = 'force-dynamic';
 
@@ -14,6 +15,7 @@ export default async function BannersAdminPage() {
 
   async function createBanner(formData: FormData) {
     'use server'
+    await requireAdmin()
     const image = formData.get('image') as string
     const link = formData.get('link') as string
 
@@ -22,21 +24,25 @@ export default async function BannersAdminPage() {
         data: { image, link: link || null, isActive: true }
       })
       revalidatePath('/admin/banners')
+      revalidatePath('/')
     }
   }
 
   async function toggleBanner(formData: FormData) {
     'use server'
+    await requireAdmin()
     const id = formData.get('id') as string
     const current = formData.get('current') === 'true'
     if (id) {
       await prisma.banner.update({ where: { id }, data: { isActive: !current } })
       revalidatePath('/admin/banners')
+      revalidatePath('/')
     }
   }
 
   async function deleteBanner(formData: FormData) {
     'use server'
+    await requireAdmin()
     const id = formData.get('id') as string
     if (id) {
       // 1. Lấy thông tin banner
@@ -53,6 +59,7 @@ export default async function BannersAdminPage() {
       // 3. Xóa bản ghi
       await prisma.banner.delete({ where: { id } })
       revalidatePath('/admin/banners')
+      revalidatePath('/')
     }
   }
 

@@ -1,4 +1,6 @@
 import prisma from '@/lib/prisma'
+import { requireAdmin } from '@/lib/auth'
+import { generateUniqueProductSlug } from '@/lib/slug'
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
@@ -7,6 +9,7 @@ import RichTextEditor from '@/components/admin/RichTextEditor'
 import CategorySubCategorySelect from '@/components/admin/CategorySubCategorySelect'
 import ProductSizeInput from '@/components/admin/ProductSizeInput'
 import { revalidatePath } from 'next/cache'
+import { deleteImagesFromStorage } from '@/lib/storage'
 import ConfirmSubmitForm from '@/components/admin/ConfirmSubmitForm'
 import AdminBreadcrumb from '@/components/admin/AdminBreadcrumb'
 
@@ -25,8 +28,9 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
 
   async function updateProduct(formData: FormData) {
     'use server'
+    await requireAdmin()
     const name = formData.get('name') as string
-    const slug = name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)+/g, "")
+    const slug = await generateUniqueProductSlug(name, id)
     const price = parseInt(formData.get('price') as string) || 0
     const description = formData.get('description') as string
     const categoryId = formData.get('categoryId') as string
@@ -42,6 +46,16 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
     const basePrice = validPrices.length > 0 ? Math.min(...validPrices) : 0
 
     if (name && categoryId) {
+      // Xóa các ảnh đã bị gỡ khỏi sản phẩm khỏi Storage để tránh ảnh rác
+      const existing = await prisma.product.findUnique({
+        where: { id },
+        select: { images: true }
+      })
+      const removedImages = (existing?.images || []).filter(url => !images.includes(url))
+      if (removedImages.length > 0) {
+        await deleteImagesFromStorage(removedImages)
+      }
+
       // First, delete existing sizes for this product to avoid complex diffing
       await prisma.productSize.deleteMany({
         where: { productId: id }
@@ -68,6 +82,9 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
         }
       })
       revalidatePath('/admin/products')
+      revalidatePath('/')
+      revalidatePath('/shop')
+      revalidatePath(`/product/${slug}`)
       redirect('/admin/products')
     }
   }

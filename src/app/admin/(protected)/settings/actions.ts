@@ -2,8 +2,10 @@
 
 import prisma from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
+import { requireAdmin } from "@/lib/auth"
 
 export async function updateSettings(formData: FormData) {
+  await requireAdmin()
   const zaloPhone = formData.get('zalo_phone') as string
   const hotlinePhone = formData.get('hotline_phone') as string
   const messengerUrl = formData.get('messenger_url') as string
@@ -41,6 +43,7 @@ export async function updateSettings(formData: FormData) {
 }
 
 export async function scanStorageAction() {
+  await requireAdmin()
   try {
     const { scanOrphanedImages } = await import("@/lib/storage");
     const orphanedFiles = await scanOrphanedImages();
@@ -52,6 +55,7 @@ export async function scanStorageAction() {
 }
 
 export async function deleteFilesAction(files: { bucket: string; name: string }[]) {
+  await requireAdmin()
   try {
     const { deleteSelectedFiles } = await import("@/lib/storage");
     const deletedCount = await deleteSelectedFiles(files);

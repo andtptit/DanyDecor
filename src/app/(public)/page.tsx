@@ -5,11 +5,12 @@ import ChatAssistant from "@/components/ChatAssistant";
 import HeroBanner from "@/components/HeroBanner";
 import Link from "next/link";
 import { getPublicSettings } from "@/lib/settings";
+import { sanitizeRichText } from "@/lib/sanitize";
 
 export const revalidate = 60; // Revalidate data every 60 seconds
 
 export default async function Home() {
-  const { zaloPhone } = await getPublicSettings();
+  const { zaloPhone, messengerUrl } = await getPublicSettings();
   // Lấy dữ liệu từ database
   const [banners, featuredProducts, allRootCategories] = await Promise.all([
     prisma.banner.findMany({
@@ -213,7 +214,7 @@ export default async function Home() {
                           {product.name}
                           </h3>
                       </Link>
-                      <div className="text-gray-500 text-sm mb-6 leading-relaxed line-clamp-2" dangerouslySetInnerHTML={{ __html: product.description || "" }} />
+                      <div className="text-gray-500 text-sm mb-6 leading-relaxed line-clamp-2" dangerouslySetInnerHTML={{ __html: sanitizeRichText(product.description) }} />
                       <div className="mt-auto flex items-center justify-between pt-6 border-t border-gray-50">
                         <div className="flex flex-col">
                           <span className="text-xl font-bold text-primary">
@@ -321,7 +322,7 @@ export default async function Home() {
       </section>
 
       {/* Chatbot AI Component */}
-      <ChatAssistant />
+      <ChatAssistant zaloPhone={zaloPhone} messengerUrl={messengerUrl} />
     </>
   );
 }

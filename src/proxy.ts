@@ -61,7 +61,7 @@ export default async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
-  ],
+  // Chỉ chạy middleware (gọi Supabase Auth) cho khu vực admin.
+  // Trang public không cần kiểm tra auth -> tránh 1 round-trip mạng mỗi request.
+  matcher: ['/admin/:path*'],
 }

@@ -6,6 +6,7 @@ import DeleteProductButton from "@/components/admin/DeleteProductButton";
 import ProductFilter from "@/components/admin/ProductFilter";
 import AdminBreadcrumb from "@/components/admin/AdminBreadcrumb";
 import { deleteImagesFromStorage } from "@/lib/storage";
+import { requireAdmin } from "@/lib/auth";
 
 export const dynamic = 'force-dynamic';
 
@@ -39,6 +40,7 @@ export default async function ProductsAdminPage({
 
   async function deleteProduct(formData: FormData) {
     'use server'
+    await requireAdmin()
     const id = formData.get('id') as string
     if (!id) return { success: false, error: 'Thiếu ID sản phẩm' }
 
@@ -57,6 +59,8 @@ export default async function ProductsAdminPage({
       // 3. Xóa sản phẩm khỏi DB
       await prisma.product.delete({ where: { id } })
       revalidatePath('/admin/products')
+      revalidatePath('/')
+      revalidatePath('/shop')
       return { success: true }
     } catch (error) {
       console.error('Delete product error:', error)

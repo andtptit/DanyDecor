@@ -1,4 +1,7 @@
 import prisma from '@/lib/prisma'
+import { requireAdmin } from '@/lib/auth'
+import { generateUniqueProductSlug } from '@/lib/slug'
+import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
@@ -18,8 +21,9 @@ export default async function CreateProductPage() {
 
   async function createProduct(formData: FormData) {
     'use server'
+    await requireAdmin()
     const name = formData.get('name') as string
-    const slug = name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)+/g, "")
+    const slug = await generateUniqueProductSlug(name)
     const price = parseInt(formData.get('price') as string) || 0
     const description = formData.get('description') as string
     const categoryId = formData.get('categoryId') as string
@@ -55,6 +59,9 @@ export default async function CreateProductPage() {
           }
         }
       })
+      // Cập nhật ngay các trang public (không phải chờ ISR 60s)
+      revalidatePath('/')
+      revalidatePath('/shop')
       redirect('/admin/products')
     }
   }

@@ -75,7 +75,9 @@ export async function scanOrphanedImages() {
   });
 
   // 2. Liệt kê file trên Supabase
-  const buckets = ['products', 'banners', 'categories', 'uploads'];
+  // Tất cả ảnh (sản phẩm, danh mục, banner) đều upload vào bucket 'product-images'
+  // qua /api/upload-image, nên chỉ cần quét bucket này.
+  const buckets = ['product-images'];
   const orphanedFiles: { bucket: string; name: string; fullPath: string }[] = [];
 
   for (const bucketName of buckets) {
