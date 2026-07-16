@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useRef, useCallback } from 'react'
-import { Upload, X, ImageIcon, Loader2 } from 'lucide-react'
+import { Upload, X, ImageIcon, Loader2, Images } from 'lucide-react'
+import ImageLibraryPicker from './ImageLibraryPicker'
 
 interface ImageUploaderProps {
   name?: string
@@ -22,7 +23,17 @@ export default function ImageUploader({ name = 'images', maxImages = 6, initialI
   const [dragOver, setDragOver] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [dragIndex, setDragIndex] = useState<number | null>(null)
+  const [showPicker, setShowPicker] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
+
+  // Thêm ảnh chọn lại từ kho (bỏ trùng, không vượt quá maxImages)
+  const addFromLibrary = (urls: string[]) => {
+    setImages(prev => {
+      const existing = new Set(prev.map(i => i.url))
+      const toAdd = urls.filter(u => !existing.has(u)).slice(0, maxImages - prev.length)
+      return [...prev, ...toAdd.map(url => ({ url, isExisting: true }))]
+    })
+  }
 
   const moveImage = (from: number, to: number) => {
     if (from === to) return
@@ -103,6 +114,17 @@ export default function ImageUploader({ name = 'images', maxImages = 6, initialI
         </div>
       )}
 
+      {/* Chọn lại ảnh đã có trong kho */}
+      {images.length < maxImages && (
+        <button
+          type="button"
+          onClick={() => setShowPicker(true)}
+          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-gray-200 bg-white text-sm font-bold text-gray-600 hover:border-primary hover:text-primary transition-colors"
+        >
+          <Images className="w-4 h-4" /> Chọn từ kho ảnh đã tải lên
+        </button>
+      )}
+
       {error && <p className="text-xs text-red-500 flex items-center gap-1"><span>⚠</span> {error}</p>}
 
       {/* Preview Grid */}
@@ -146,6 +168,14 @@ export default function ImageUploader({ name = 'images', maxImages = 6, initialI
           {images.length > 1 && <span> · Kéo để sắp xếp, ảnh đầu tiên là ảnh bìa</span>}
         </p>
       )}
+
+      <ImageLibraryPicker
+        open={showPicker}
+        onClose={() => setShowPicker(false)}
+        onConfirm={addFromLibrary}
+        maxSelectable={maxImages - images.length}
+        alreadyUsed={images.map(img => img.url)}
+      />
     </div>
   )
 }

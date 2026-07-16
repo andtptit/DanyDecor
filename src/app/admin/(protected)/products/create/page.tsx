@@ -12,7 +12,11 @@ import ProductSizeInput from '@/components/admin/ProductSizeInput'
 import ConfirmSubmitForm from '@/components/admin/ConfirmSubmitForm'
 import AdminBreadcrumb from '@/components/admin/AdminBreadcrumb'
 
+// Luôn render động để dropdown danh mục luôn khớp với Quản Lý Danh Mục (không cache tĩnh lúc build)
+export const dynamic = 'force-dynamic'
+
 export default async function CreateProductPage() {
+  await requireAdmin()
   const categories = await prisma.category.findMany({
     orderBy: {
       name: 'asc'

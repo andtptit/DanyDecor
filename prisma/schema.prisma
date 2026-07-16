@@ -17,7 +17,10 @@ model Category {
   slug        String     @unique
   image       String?
   description String?
-  
+
+  // Hiển thị danh mục này như một "bộ sưu tập" ở trang chủ (mặc định ẩn, admin tự bật)
+  showOnHome  Boolean    @default(false)
+
   parentId    String?
   parent      Category?  @relation("CategoryToCategory", fields: [parentId], references: [id])
   children    Category[] @relation("CategoryToCategory")

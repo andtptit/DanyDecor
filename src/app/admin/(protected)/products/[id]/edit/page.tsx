@@ -13,7 +13,11 @@ import { deleteImagesFromStorage } from '@/lib/storage'
 import ConfirmSubmitForm from '@/components/admin/ConfirmSubmitForm'
 import AdminBreadcrumb from '@/components/admin/AdminBreadcrumb'
 
+// Luôn render động để dropdown danh mục luôn khớp với Quản Lý Danh Mục (không cache tĩnh lúc build)
+export const dynamic = 'force-dynamic'
+
 export default async function EditProductPage({ params }: { params: Promise<{ id: string }> }) {
+  await requireAdmin()
   const { id } = await params
   const [product, categories] = await Promise.all([
     prisma.product.findUnique({ where: { id }, include: { sizes: true } }).catch(() => null),

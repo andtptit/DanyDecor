@@ -11,7 +11,7 @@ import FavoriteButton from "@/components/wishlist/FavoriteButton";
 export const revalidate = 60; // Revalidate data every 60 seconds
 
 export default async function Home() {
-  const { zaloPhone, messengerUrl } = await getPublicSettings();
+  const { zaloPhone, messengerUrl, homeCollectionsEnabled } = await getPublicSettings();
   // Lấy dữ liệu từ database
   const [banners, featuredProducts, allRootCategories] = await Promise.all([
     prisma.banner.findMany({
@@ -30,7 +30,7 @@ export default async function Home() {
       }
     }).catch((e) => { console.error("Product fetch error:", e); return []; }),
     prisma.category.findMany({
-      where: { parentId: null }, // Chỉ lấy các danh mục gốc
+      where: { parentId: null, showOnHome: true }, // Danh mục gốc được bật hiển thị ở trang chủ
       orderBy: { name: "asc" },
       take: 12 // Tăng giới hạn để hỗ trợ nhiều hơn 4 danh mục
     }).catch((e) => { console.error("Category fetch error:", e); return []; })
@@ -97,7 +97,8 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Section Danh mục nổi bật */}
+      {/* Section Danh mục nổi bật (bộ sưu tập) — ẩn cả khu vực nếu tắt hoặc chưa bật danh mục nào */}
+      {homeCollectionsEnabled && allRootCategories.length > 0 && (
       <section className="py-24 bg-white">
         <div className="container-custom">
           <div className="flex flex-col md:flex-row items-center justify-between mb-16 gap-6 text-center md:text-left">
@@ -166,6 +167,7 @@ export default async function Home() {
           {categoryCount > 2 && <div className="h-12 hidden lg:block"></div>}
         </div>
       </section>
+      )}
 
       {/* Danh mục: Tranh Treo Tường */}
       <section id="tranh" className="py-24 bg-white">

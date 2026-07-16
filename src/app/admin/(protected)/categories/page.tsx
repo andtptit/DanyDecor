@@ -1,5 +1,5 @@
 import prisma from '@/lib/prisma'
-import { Edit, ChevronRight, CornerDownRight } from 'lucide-react'
+import { Edit, ChevronRight, CornerDownRight, ToggleLeft, ToggleRight, Home } from 'lucide-react'
 import { revalidatePath, revalidateTag } from 'next/cache'
 import Link from 'next/link'
 import ImageUploader from '@/components/admin/ImageUploader'
@@ -17,7 +17,7 @@ export default async function CategoriesAdminPage() {
   const allCategories = await prisma.category.findMany({
     include: {
       parent: true,
-      children: true,
+      children: { orderBy: { name: 'asc' } }, // Sắp danh mục con theo tên để khớp trang cửa hàng
       _count: { select: { products: true } }
     },
     orderBy: { name: 'asc' }
@@ -25,6 +25,41 @@ export default async function CategoriesAdminPage() {
 
   // Filter root categories for the list and dropdown
   const rootCategories = allCategories.filter(cat => cat.parentId === null || cat.parentId === '')
+
+  // Trạng thái bật/tắt cả khu vực "bộ sưu tập" ở trang chủ (mặc định bật)
+  const collectionsSetting = await prisma.setting
+    .findUnique({ where: { key: 'HOME_COLLECTIONS_ENABLED' } })
+    .catch(() => null)
+  const collectionsEnabled = (collectionsSetting?.value ?? 'true') !== 'false'
+
+  // Bật/tắt cả khu vực bộ sưu tập trên trang chủ
+  async function toggleCollectionsSection(formData: FormData) {
+    'use server'
+    await requireAdmin()
+    const next = formData.get('next') === 'true'
+    await prisma.setting.upsert({
+      where: { key: 'HOME_COLLECTIONS_ENABLED' },
+      update: { value: next ? 'true' : 'false' },
+      create: { key: 'HOME_COLLECTIONS_ENABLED', value: next ? 'true' : 'false' }
+    })
+    revalidatePath('/admin/categories')
+    revalidatePath('/')
+    revalidateTag('settings', 'max')
+  }
+
+  // Bật/tắt hiển thị một danh mục gốc như bộ sưu tập ở trang chủ
+  async function toggleCategoryHome(formData: FormData) {
+    'use server'
+    await requireAdmin()
+    const id = formData.get('id') as string
+    const next = formData.get('next') === 'true'
+    if (id) {
+      await prisma.category.update({ where: { id }, data: { showOnHome: next } })
+      revalidatePath('/admin/categories')
+      revalidatePath('/')
+      revalidateTag('categories', 'max')
+    }
+  }
 
   async function deleteCategory(formData: FormData) {
     'use server'
@@ -115,11 +150,28 @@ export default async function CategoriesAdminPage() {
   return (
     <div>
       <AdminBreadcrumb items={[{ label: 'Quản lý danh mục' }]} />
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-8">
         <div>
           <h1 className="text-3xl font-bold text-dark font-serif mb-2">Quản Lý Danh Mục</h1>
           <p className="text-gray-500 text-sm">Thêm mới danh mục gốc hoặc danh mục con để phân loại sản phẩm.</p>
         </div>
+
+        {/* Công tắc bật/tắt cả khu vực bộ sưu tập ở trang chủ */}
+        <form action={toggleCollectionsSection} className="shrink-0">
+          <input type="hidden" name="next" value={String(!collectionsEnabled)} />
+          <button
+            type="submit"
+            title={collectionsEnabled ? 'Ẩn khu vực bộ sưu tập trên trang chủ' : 'Hiện khu vực bộ sưu tập trên trang chủ'}
+            className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-bold transition-colors ${collectionsEnabled ? 'text-green-600 border-green-100 bg-green-50 hover:bg-green-100' : 'text-gray-400 border-gray-200 bg-white hover:bg-soft-gray'}`}
+          >
+            <Home className="w-4 h-4" />
+            <span>Bộ sưu tập trang chủ:</span>
+            {collectionsEnabled
+              ? <><ToggleRight className="w-5 h-5" /> Đang bật</>
+              : <><ToggleLeft className="w-5 h-5" /> Đang tắt</>
+            }
+          </button>
+        </form>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -176,7 +228,14 @@ export default async function CategoriesAdminPage() {
                       <div className="flex items-center gap-2">
                         <span className="w-2 h-2 rounded-full bg-primary"></span>
                         <div>
-                          <p className="font-bold text-dark">{root.name}</p>
+                          <p className="font-bold text-dark flex items-center gap-2">
+                            {root.name}
+                            {root.showOnHome && (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-green-100 text-green-600">
+                                <Home className="w-2.5 h-2.5" /> Trang chủ
+                              </span>
+                            )}
+                          </p>
                           <p className="text-[10px] text-gray-400">/{root.slug}</p>
                         </div>
                       </div>
@@ -184,6 +243,18 @@ export default async function CategoriesAdminPage() {
                     <td className="px-6 py-4 text-gray-500 font-medium">{root._count?.products ?? 0} SP</td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex justify-end gap-2">
+                        {/* Bật/tắt hiển thị bộ sưu tập ở trang chủ */}
+                        <form action={toggleCategoryHome}>
+                          <input type="hidden" name="id" value={root.id} />
+                          <input type="hidden" name="next" value={String(!root.showOnHome)} />
+                          <button
+                            type="submit"
+                            title={root.showOnHome ? 'Ẩn khỏi trang chủ' : 'Hiện ở trang chủ'}
+                            className={`p-2 rounded-lg border transition-colors ${root.showOnHome ? 'text-green-500 border-green-100 bg-green-50 hover:bg-green-100' : 'text-gray-400 border-gray-100 bg-white hover:bg-soft-gray'}`}
+                          >
+                            {root.showOnHome ? <ToggleRight className="w-4 h-4" /> : <ToggleLeft className="w-4 h-4" />}
+                          </button>
+                        </form>
                         <Link href={`/admin/categories/${root.id}/edit`} className="p-2 text-gray-400 hover:text-primary transition-colors bg-white border border-gray-100 rounded-lg hover:bg-soft-gray">
                           <Edit className="w-4 h-4" />
                         </Link>

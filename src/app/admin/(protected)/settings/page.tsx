@@ -1,11 +1,16 @@
 import { Settings as SettingsIcon } from "lucide-react";
 import prisma from "@/lib/prisma";
 import SettingsForm from "./SettingsForm";
+import StorageManager from "./StorageManager";
+import { getStorageUsage } from "@/lib/storage";
 
 export const dynamic = 'force-dynamic';
 
 export default async function SettingsPage() {
-  const settingsData = await prisma.setting.findMany().catch(() => []);
+  const [settingsData, storageUsage] = await Promise.all([
+    prisma.setting.findMany().catch(() => []),
+    getStorageUsage().catch(() => ({ totalBytes: 0, fileCount: 0 })),
+  ]);
   
   const initialData = {
     zalo_phone: settingsData.find(s => s.key === 'NEXT_PUBLIC_ZALO_PHONE')?.value || process.env.NEXT_PUBLIC_ZALO_PHONE || '',
@@ -27,6 +32,9 @@ export default async function SettingsPage() {
       <div className="grid gap-8">
         {/* Form cài đặt (Client Component) */}
         <SettingsForm initialData={initialData} />
+
+        {/* Kho ảnh & dung lượng: hiện dung lượng đã dùng + dọn ảnh mồ côi thủ công */}
+        <StorageManager initialUsage={storageUsage} />
 
         {/* Cấu hình SEO & Website (Mockup for now) */}
         <div className="bg-white rounded-[2rem] border border-gray-100 shadow-sm p-8">

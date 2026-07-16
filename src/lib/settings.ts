@@ -35,7 +35,9 @@ export const getPublicSettings = cache(async () => {
       messengerUrl: settings.find(s => s.key === 'NEXT_PUBLIC_MESSENGER_URL')?.value || process.env.NEXT_PUBLIC_MESSENGER_URL || '',
       shopAddress: settings.find(s => s.key === 'SHOP_ADDRESS')?.value || '',
       highlight1Text: settings.find(s => s.key === 'HIGHLIGHT_1_TEXT')?.value || 'Bảo hành 2 năm',
-      highlight2Text: settings.find(s => s.key === 'HIGHLIGHT_2_TEXT')?.value || 'Giao nhanh 2h'
+      highlight2Text: settings.find(s => s.key === 'HIGHLIGHT_2_TEXT')?.value || 'Giao nhanh 2h',
+      // Bật/tắt cả khu vực "bộ sưu tập" ở trang chủ (mặc định bật)
+      homeCollectionsEnabled: (settings.find(s => s.key === 'HOME_COLLECTIONS_ENABLED')?.value ?? 'true') !== 'false'
     }
   } catch (error) {
     console.error('Database connection failed in getPublicSettings, using fallbacks.')
@@ -45,7 +47,8 @@ export const getPublicSettings = cache(async () => {
       messengerUrl: process.env.NEXT_PUBLIC_MESSENGER_URL || '',
       shopAddress: '',
       highlight1Text: 'Bảo hành 2 năm',
-      highlight2Text: 'Giao nhanh 2h'
+      highlight2Text: 'Giao nhanh 2h',
+      homeCollectionsEnabled: true
     }
   }
 });
