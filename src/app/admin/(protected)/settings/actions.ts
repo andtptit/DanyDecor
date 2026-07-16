@@ -34,7 +34,7 @@ export async function updateSettings(formData: FormData) {
 
     revalidatePath('/admin/settings')
     revalidatePath('/', 'layout')
-    revalidateTag('settings')
+    revalidateTag('settings', 'max')
 
     return { success: true }
   } catch (error) {

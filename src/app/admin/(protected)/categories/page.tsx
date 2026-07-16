@@ -73,7 +73,7 @@ export default async function CategoriesAdminPage() {
       revalidatePath('/admin/categories')
       revalidatePath('/')
       revalidatePath('/shop')
-      revalidateTag('categories')
+      revalidateTag('categories', 'max')
       return { success: true }
     } catch (error) {
       console.error('Delete category error:', error)
@@ -108,7 +108,7 @@ export default async function CategoriesAdminPage() {
       revalidatePath('/admin/categories')
       revalidatePath('/')
       revalidatePath('/shop')
-      revalidateTag('categories')
+      revalidateTag('categories', 'max')
     }
   }
 

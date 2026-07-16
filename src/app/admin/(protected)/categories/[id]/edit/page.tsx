@@ -58,7 +58,7 @@ export default async function EditCategoryPage({ params }: { params: Promise<{ i
       revalidatePath('/admin/categories')
       revalidatePath('/')
       revalidatePath('/shop')
-      revalidateTag('categories')
+      revalidateTag('categories', 'max')
       redirect('/admin/categories')
     }
   }
