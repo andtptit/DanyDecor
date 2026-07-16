@@ -89,6 +89,30 @@ export function CategorySidebarSkeleton() {
   );
 }
 
+// Skeleton khu vực kết quả trang shop (thanh công cụ + lưới sản phẩm)
+// Dùng làm fallback khi đổi danh mục / lọc / phân trang
+export function ShopResultsSkeleton({ count = 9 }: { count?: number }) {
+  return (
+    <div className="animate-in fade-in duration-300">
+      {/* Thanh công cụ */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+        <div className="space-y-2">
+          <Sk className="h-4 w-40" />
+          <Sk className="h-3 w-28" />
+        </div>
+        <Sk className="h-11 w-44 rounded-2xl" />
+      </div>
+
+      {/* Lưới sản phẩm */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+        {Array.from({ length: count }).map((_, i) => (
+          <ProductCardSkeleton key={i} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // Skeleton bộ lọc admin
 export function FilterBarSkeleton() {
   return (
