@@ -9,6 +9,7 @@ import { ShopResultsSkeleton, CategorySidebarSkeleton } from "@/components/Skele
 import { Suspense } from "react";
 import { sanitizeRichText } from "@/lib/sanitize";
 import { getPublicSettings } from "@/lib/settings";
+import { getShopCategoryTree } from "@/lib/categories";
 import { SITE_NAME } from "@/lib/site";
 import FavoriteButton from "@/components/wishlist/FavoriteButton";
 
@@ -67,13 +68,7 @@ function buildCategoryHref(categoryId: string | null, sp: ResolvedSearchParams) 
 async function ShopSidebar({ sp }: { sp: ResolvedSearchParams }) {
   const { category: selectedCategoryId, q } = sp;
 
-  const categories = await prisma.category
-    .findMany({
-      include: { children: { orderBy: { name: "asc" } } },
-      where: { parentId: null },
-      orderBy: { name: "asc" },
-    })
-    .catch(() => []);
+  const categories = await getShopCategoryTree();
 
   return (
     <aside className="w-full lg:w-64 space-y-8 lg:space-y-10">

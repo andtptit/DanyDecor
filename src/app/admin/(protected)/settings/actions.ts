@@ -1,7 +1,7 @@
 'use server'
 
 import prisma from "@/lib/prisma"
-import { revalidatePath } from "next/cache"
+import { revalidatePath, revalidateTag } from "next/cache"
 import { requireAdmin } from "@/lib/auth"
 
 export async function updateSettings(formData: FormData) {
@@ -34,7 +34,8 @@ export async function updateSettings(formData: FormData) {
 
     revalidatePath('/admin/settings')
     revalidatePath('/', 'layout')
-    
+    revalidateTag('settings')
+
     return { success: true }
   } catch (error) {
     console.error('Failed to update settings:', error)

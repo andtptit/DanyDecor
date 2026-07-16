@@ -2,7 +2,7 @@ import prisma from '@/lib/prisma'
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
 import ImageUploader from '@/components/admin/ImageUploader'
 import ConfirmSubmitForm from '@/components/admin/ConfirmSubmitForm'
 import AdminBreadcrumb from '@/components/admin/AdminBreadcrumb'
@@ -58,6 +58,7 @@ export default async function EditCategoryPage({ params }: { params: Promise<{ i
       revalidatePath('/admin/categories')
       revalidatePath('/')
       revalidatePath('/shop')
+      revalidateTag('categories')
       redirect('/admin/categories')
     }
   }

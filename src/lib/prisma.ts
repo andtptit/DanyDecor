@@ -8,10 +8,12 @@ const prismaClientSingleton = () => {
     console.error("CRITICAL: DATABASE_URL is missing in environment variables!");
   }
   
-  const pool = new Pool({ 
+  // Trên serverless (Vercel), mỗi instance chỉ xử lý một request tại một thời điểm,
+  // nên pool nhỏ giúp cold start nhanh hơn và không làm cạn connection của Supabase pooler.
+  const pool = new Pool({
     connectionString,
-    max: process.env.NODE_ENV === 'production' ? 10 : 20,
-    idleTimeoutMillis: 30000,
+    max: process.env.NODE_ENV === 'production' ? 3 : 10,
+    idleTimeoutMillis: 10000,
     connectionTimeoutMillis: 5000,
     ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
   })

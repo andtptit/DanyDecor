@@ -1,4 +1,5 @@
 import { cache } from "react"
+import { unstable_cache } from "next/cache"
 import prisma from "./prisma"
 
 export async function getSetting(key: string, defaultValue: string = '') {
@@ -12,10 +13,22 @@ export async function getSetting(key: string, defaultValue: string = '') {
   }
 }
 
+// Đọc settings từ DB — cache xuyên request (settings hầu như không đổi),
+// tránh gọi DB Singapore mỗi lượt truy cập. Làm mới sau 300s.
+const getPublicSettingsCached = unstable_cache(
+  async () => {
+    const settings = await prisma.setting.findMany()
+    return settings.map(s => ({ key: s.key, value: s.value }))
+  },
+  ['public-settings'],
+  { revalidate: 300, tags: ['settings'] }
+)
+
+// cache() của React để dedup trong cùng một request render
 export const getPublicSettings = cache(async () => {
   try {
-    const settings = await prisma.setting.findMany()
-    
+    const settings = await getPublicSettingsCached()
+
     return {
       zaloPhone: settings.find(s => s.key === 'NEXT_PUBLIC_ZALO_PHONE')?.value || process.env.NEXT_PUBLIC_ZALO_PHONE || '0987654321',
       hotlinePhone: settings.find(s => s.key === 'HOTLINE_PHONE')?.value || process.env.HOTLINE_PHONE || '0987654321',

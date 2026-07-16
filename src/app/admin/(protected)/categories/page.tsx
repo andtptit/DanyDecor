@@ -1,6 +1,6 @@
 import prisma from '@/lib/prisma'
 import { Edit, ChevronRight, CornerDownRight } from 'lucide-react'
-import { revalidatePath } from 'next/cache'
+import { revalidatePath, revalidateTag } from 'next/cache'
 import Link from 'next/link'
 import ImageUploader from '@/components/admin/ImageUploader'
 import ConfirmSubmitForm from '@/components/admin/ConfirmSubmitForm'
@@ -73,6 +73,7 @@ export default async function CategoriesAdminPage() {
       revalidatePath('/admin/categories')
       revalidatePath('/')
       revalidatePath('/shop')
+      revalidateTag('categories')
       return { success: true }
     } catch (error) {
       console.error('Delete category error:', error)
@@ -107,6 +108,7 @@ export default async function CategoriesAdminPage() {
       revalidatePath('/admin/categories')
       revalidatePath('/')
       revalidatePath('/shop')
+      revalidateTag('categories')
     }
   }
 

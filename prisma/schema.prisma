@@ -25,6 +25,8 @@ model Category {
   products    Product[]
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
+
+  @@index([parentId])
 }
 
 model Product {
@@ -44,6 +46,12 @@ model Product {
 
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @updatedAt
+
+  // Index cho trang shop: lọc theo danh mục + sắp xếp theo ngày tạo
+  @@index([categoryId])
+  @@index([createdAt])
+  @@index([categoryId, createdAt])
+  @@index([isFeatured])
 }
 
 model ProductSize {
@@ -57,6 +65,8 @@ model ProductSize {
 
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+
+  @@index([productId])
 }
 
 
